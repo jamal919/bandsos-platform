@@ -1,14 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Core data abstraction class.
 
-The classes implemented here provides functionality to handle triangular mesh, 
-rectangular mesh data. No timestamp is attached with the dataset.
-
-@author: khan
-@email: jamal.khan@legos.obs-mip.fr
-"""
 import pandas as pd
 import numpy as np
 from scipy.interpolate import griddata

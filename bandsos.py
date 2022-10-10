@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#%% imports
+import shutil
 from bandsos.schism import Grid, Sflux, Bctides, Tidefacout
 from bandsos.gfs import create_gfs_data
 
@@ -9,7 +9,6 @@ import pandas as pd
 import numpy as np
 
 import f90nml
-
 import logging
 
 import subprocess
@@ -17,12 +16,8 @@ import os
 import sys
 from glob import glob
 
-#%% setup
 SECONDS2DAY = 1/86400
 
-logging.basicConfig(filename='bandsos.log', level=logging.INFO, filemode='w')
-
-#%% functions
 def init_cycle(cycle: str, model_spinup: str, forecast_length: str, cycle_step: str, cycle_format: str = '%Y%m%d%H'):
     '''
     Extracts and return a dict of `start_date`, `end_date`, `forecast_length`, `cycle_step` for a given cycle name.
@@ -59,7 +54,6 @@ def create_gfs_sflux(fname, n_buffer_steps=2, outpath='./', step='1H', nstep=24,
     timesteps = pd.date_range(start=start_time, end=end_time, freq=step)
     
     for timestep in timesteps:
-        logging.info(f'Processing - {timestep}')
 
         flux = {
                 'uwind':ds['u10'].interp(time=timestep, lon=x, lat=y),
@@ -100,16 +94,14 @@ def create_tidefacinput(start_date, end_date, savedir='./'):
         f.write(f'{rnday}\n')
 
 def update_bctides(tidefac, bctides_template, bctides_outfile='bctides.in', tidefac_out='tide_fac.out', cycledir='./'):
-    subprocess.call([tidefac])
+    subprocess.call([tidefac], cwd=cycledir)
     bctides = Bctides()
     bctides.read(bctides_template)
     tidefac = Tidefacout()
-    tidefac.read(tidefac_out)
+    tidefac.read(os.path.join(cycledir, tidefac_out))
     bctides.update(tidefac=tidefac)
     bctides.updatesa(tidefac=tidefac)
     bctides.write(os.path.join(cycledir, bctides_outfile))
-    subprocess.call(['mv', '-v', 'tidefacinput', os.path.join(cycledir, 'tidefacinput')])
-    subprocess.call(['mv', '-v', 'tide_fac.out', os.path.join(cycledir, 'tide_fac.out')])
 
 def create_climatic_discharge(discharge, tidefacinput, bnds, outdir='./'):
     ds = pd.read_csv(discharge).set_index('Day')
@@ -224,13 +216,40 @@ def template_script(template, cycledir):
     with open(os.path.join(cycledir, os.path.basename(template)), 'w') as f:
         f.write(ds)
 
+def run_model(model_exe, ncpu, nscribe, run_dir):
+    run_model_subprocess = subprocess.Popen(
+        ['mpirun', '-np', f'{ncpu}', model_exe, f'{nscribe}'],
+        # stdout=subprocess.PIPE, 
+        # stderr=subprocess.PIPE, 
+        text=True, 
+        cwd=run_dir)
+
+    return(run_model_subprocess)
 
 
-#%% Main section
 if __name__=='__main__':
-    cycles = ['2022090900', '2022090906', '2022090912', '2022090918']
-    cycles = ['2022090900', '2022090906']
-    print(sys.argv)
+    try:
+        cycle = sys.argv[1]
+    except:
+        raise Exception('The program must be called with 1 argument for cycle in yyyymmddhh format')
+
+    # Directory setup
+    root_dir = '/run/media/khan/Workbench/bandsos'
+    config_dir = os.path.join(root_dir, 'config')
+    fluxes_dir = os.path.join(root_dir, 'fluxes')
+    gfs_dir = os.path.join(fluxes_dir, 'gfs')
+    hwrf_dir = os.path.join(fluxes_dir, 'hwrf')
+    jtwc_dir = os.path.join(fluxes_dir, 'jtwc')
+    discharge_dir = os.path.join(fluxes_dir, 'discharge')
+    forecasts_dir = os.path.join(root_dir, 'forecasts')
+    script_dir = os.path.join(root_dir, 'scripts')
+
+    # Programs
+    tidefac_exe = '/run/media/khan/Workbench/bandsos/scripts/tidefac'
+    schism_WWM_exe = '/home/khan/Models/schism/build/9cdc9bb/bin/pschism_WWM_TVD-VL'
+
+    # Fluxes setup
+    extent = [75, 102, 5, 30]
     
     forecast_config = {
         'model_spinup':'2D',
@@ -239,72 +258,104 @@ if __name__=='__main__':
         'cycle_format':'%Y%m%d%H'
     }
 
-    for cycle in cycles:
-        cycle_config = init_cycle(cycle=cycle, **forecast_config)
+    wave = True
 
-        cycledir = os.path.join('forecasts', cycle_config['cycle'])
-        
-        print(cycle_config['cycle'], ' -> ', cycledir)
-        
-        if not os.path.exists(cycledir):
-            os.mkdir(cycledir)
+    cycle_config = init_cycle(cycle=cycle, **forecast_config)
+    cycledir = os.path.join(forecasts_dir, cycle_config['cycle'])
+    if not os.path.exists(cycledir):
+        os.mkdir(cycledir)
 
-        wave = True
+    logging.basicConfig(filename=os.path.join(cycledir, 'bandsos.log'), level=logging.INFO, filemode='w')
+    logging.info(f"{cycle_config['cycle']} -> {cycledir}")
+    logging.info(forecast_config)
         
-        fname_gfs = os.path.join(cycledir, 'gfs.nc')
-        create_gfs_data(
-            start_date=cycle_config['start_date'], 
-            end_date=cycle_config['end_date'], 
-            forecast_length=cycle_config['forecast_length'], 
-            cycle_step=cycle_config['cycle_step'], 
-            fdir='./fluxes/gfs', 
-            fname_pattern='gfs*.nc', 
-            fname_out=fname_gfs)
-        create_gfs_sflux(
-            fname=fname_gfs, 
-            n_buffer_steps=2, 
-            outpath=cycledir, 
-            step='1H', 
-            nstep=24, 
-            basedate='1970-01-01')
-        create_tidefacinput(
-            start_date=cycle_config['start_date'], 
-            end_date=cycle_config['end_date'], 
-            savedir='./')
-        update_bctides(
-            tidefac='./scripts/tidefac', 
-            bctides_template='config/bctides.in.3.template', 
-            cycledir=cycledir)
-        create_climatic_discharge(
-            discharge='./fluxes/discharge/climatic_discharge.csv', 
-            tidefacinput=os.path.join(cycledir, 'tidefacinput'), 
-            bnds=['Karnaphuli', 'Hooghly', 'Ganges', 'Brahmaputra'], 
-            outdir=cycledir) # Meghna is flather
-        create_param(
-            tidefacinput=os.path.join(cycledir, 'tidefacinput'), 
-            param_template_file='./config/param.nml.template', 
-            param_output_file=os.path.join(cycledir, 'param.nml'),
-            wave=wave)
+    fname_gfs = os.path.join(cycledir, 'gfs.nc')
+    create_gfs_data(
+        start_date=cycle_config['start_date'], 
+        end_date=cycle_config['end_date'], 
+        forecast_length=cycle_config['forecast_length'], 
+        cycle_step=cycle_config['cycle_step'], 
+        fdir=gfs_dir, 
+        fname_pattern='gfs*.nc', 
+        fname_out=fname_gfs)
+    logging.info('GFS data creation successful -> {fname_gfs}')
 
-        create_wwminput(
-            param_nml_file=os.path.join(cycledir, 'param.nml'),
-            wwminput_template_file='./config/wwminput.nml.nobnd.template',
-            wwminput_output_file=os.path.join(cycledir, 'wwminput.nml')
+    create_gfs_sflux(
+        fname=fname_gfs, 
+        n_buffer_steps=2,
+        outpath=cycledir, 
+        step='1H', 
+        nstep=24, 
+        basedate='1970-01-01')
+    logging.info('Sflux generation successful')
+    
+    create_tidefacinput(
+        start_date=cycle_config['start_date'], 
+        end_date=cycle_config['end_date'], 
+        savedir=cycledir)
+    logging.info('Tidefacinput is created')
+
+    update_bctides(
+        tidefac=tidefac_exe, 
+        bctides_template=os.path.join(config_dir, 'bctides.in.3.template'), 
+        cycledir=cycledir)
+    logging.info('Tidefac is called.')
+    
+    create_climatic_discharge(
+        discharge=os.path.join(fluxes_dir, 'discharge', 'climatic_discharge.csv'), 
+        tidefacinput=os.path.join(cycledir, 'tidefacinput'), 
+        bnds=['Karnaphuli', 'Hooghly', 'Ganges', 'Brahmaputra'], 
+        outdir=cycledir) # Meghna is flather
+    logging.info('Flux.th file is generated')
+    
+    create_param(
+        tidefacinput=os.path.join(cycledir, 'tidefacinput'), 
+        param_template_file=os.path.join(config_dir, 'param.nml.template'), 
+        param_output_file=os.path.join(cycledir, 'param.nml'),
+        wave=wave)
+    logging.info('param.nml file is generated.')
+
+    create_wwminput(
+        param_nml_file=os.path.join(cycledir, 'param.nml'),
+        wwminput_template_file=os.path.join(config_dir, 'wwminput.nml.nobnd.template'),
+        wwminput_output_file=os.path.join(cycledir, 'wwminput.nml')
+    )
+    logging.info('wwminput is generated.')
+
+    # Replace with shuitls
+    subprocess.call(['cp', '-v', os.path.join(config_dir, 'hgrid.gr3.3.template'), os.path.join(cycledir, 'hgrid.gr3')])
+    subprocess.call(['cp', '-v', os.path.join(cycledir, 'hgrid.gr3'), os.path.join(cycledir, 'hgrid.ll')])
+    subprocess.call(['cp', '-v', os.path.join(cycledir, 'hgrid.gr3'), os.path.join(cycledir, 'hgrid_WWM.gr3')])
+    subprocess.call(['cp', '-v', os.path.join(config_dir, 'vgrid.in.2D.template'), os.path.join(cycledir, 'vgrid.in')])
+    subprocess.call(['cp', '-v', os.path.join(config_dir, 'manning.gr3.3.template'), os.path.join(cycledir, 'manning.gr3')])
+    subprocess.call(['cp', '-v', os.path.join(config_dir, 'windrot_geo2proj.gr3.template'), os.path.join(cycledir, 'windrot_geo2proj.gr3')])
+    subprocess.call(['cp', '-v', os.path.join(config_dir, 'station.in.3.template'), os.path.join(cycledir, 'station.in')])
+    if wave:
+        subprocess.call(['cp', '-v', os.path.join(config_dir, 'wwmbnd.gr3.inactive'), os.path.join(cycledir, 'wwmbnd.gr3')])
+
+    template_script(template=os.path.join(script_dir, 'run.slurm'), cycledir=cycledir)
+    template_script(template=os.path.join(script_dir, 'jeanzay_upload.sh'), cycledir=cycledir)
+    template_script(template=os.path.join(script_dir, 'jeanzay_download.sh'), cycledir=cycledir)
+
+    template_script(template=os.path.join(script_dir, 'run.pbs'), cycledir=cycledir)
+    template_script(template=os.path.join(script_dir, 'thor_upload.sh'), cycledir=cycledir)
+    template_script(template=os.path.join(script_dir, 'thor_download.sh'), cycledir=cycledir)
+
+    logging.info('Template model files are copied')
+
+    logging.info(f'Model computation starts at {pd.to_datetime("now")}')
+    if not os.path.exists(os.path.join(cycledir, 'outputs')):
+        os.mkdir(os.path.join(cycledir, 'outputs'))
+    runner = run_model(
+        model_exe=schism_WWM_exe, 
+        ncpu=os.cpu_count(), 
+        nscribe=1, 
+        run_dir=cycledir
         )
+    status = runner.wait()
+    if status == 0:
+        logging.info(f'Model computation ends at {pd.to_datetime("now")}')
+    else:
+        logging.info(f'Model computation fails at {pd.to_datetime("now")}')
 
-        subprocess.call(['cp', 'config/hgrid.gr3.3.template', os.path.join(cycledir, 'hgrid.gr3')])
-        subprocess.call(['cp', os.path.join(cycledir, 'hgrid.gr3'), os.path.join(cycledir, 'hgrid.ll')])
-        subprocess.call(['cp', 'config/vgrid.in.2D.template', os.path.join(cycledir, 'vgrid.in')])
-        subprocess.call(['cp', 'config/manning.gr3.3.template', os.path.join(cycledir, 'manning.gr3')])
-        subprocess.call(['cp', 'config/windrot_geo2proj.gr3.template', os.path.join(cycledir, 'windrot_geo2proj.gr3')])
-        subprocess.call(['cp', 'config/station.in.3.template', os.path.join(cycledir, 'station.in')])
-        if wave:
-            subprocess.call(['cp', 'config/wwmbnd.gr3.inactive', os.path.join(cycledir, 'wwmbnd.gr3')])
 
-        template_script(template='./scripts/run.slurm', cycledir=cycledir)
-        template_script(template='./scripts/jeanzay_upload.sh', cycledir=cycledir)
-        template_script(template='./scripts/jeanzay_download.sh', cycledir=cycledir)
-
-        template_script(template='./scripts/run.pbs', cycledir=cycledir)
-        template_script(template='./scripts/thor_upload.sh', cycledir=cycledir)
-        template_script(template='./scripts/thor_download.sh', cycledir=cycledir)

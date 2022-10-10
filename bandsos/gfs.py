@@ -56,9 +56,12 @@ def select_gfs_cycles(
     # Iteratively find the start date/cycle
     while not found_sflux_start:
         if sflux_start_date in start_dates:
+            print(f'Found {sflux_start_date} in available forecast.')
             found_sflux_start = True
         else:
+            print(f'Not found {sflux_start_date} in available forecast.')
             sflux_start_date = sflux_start_date - cycle_step
+            print(f'Will try with {sflux_start_date} in available forecast.')
 
         # Check if the search is above the allowed forecast_length
         if sflux_start_date - start_date > forecast_length:
@@ -101,11 +104,10 @@ def select_gfs_cycles(
     return(selected_cycles)
 
 def combine_gfs_cycles_temp(cycles: pd.DataFrame, fname: str, temp_dir: str, temp_name:str):
-    print('In combine_gfs_cycles():')
     print(f'\tPreparing {len(cycles.index)-1} previous gfs cycles...', end='')
     for i in range(len(cycles.index)-1):
         with xr.open_dataset(cycles.fpath[i]) as ds:
-            dt = pd.to_timedelta(ds.time.diff(dim='time')[0])
+            dt = pd.to_timedelta(ds.time.diff(dim='time'))[0]
             start_time = cycles.start_date[i]
             end_time = cycles.start_date[i+1] - dt # to avoid overlapping with the next
             ds.sel(time=slice(start_time, end_time)).to_netcdf(os.path.join(temp_dir, f'{temp_name}_{i:02d}.nc'))

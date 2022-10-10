@@ -6,7 +6,9 @@ import numpy as np
 import pandas as pd
 from glob import glob
 import os
+import shutil
 import tempfile
+import sys
 
 def list_gfs_cycles(fdir: str, fname_pattern: str = 'gfs*.nc') -> pd.DataFrame:
     ''' 
@@ -20,7 +22,7 @@ def list_gfs_cycles(fdir: str, fname_pattern: str = 'gfs*.nc') -> pd.DataFrame:
 
     cycles = pd.DataFrame({'fpath':fpath})
     cycles['fname'] = [os.path.basename(f) for f in cycles.loc[:, 'fpath']]
-    cycles['cycle_id'] = [f[3:11]+f[25:27] for f in cycles.loc[:, 'fname']]
+    cycles['cycle_id'] = [f[4:14] for f in cycles.loc[:, 'fname']] # gfs_yyyymmddhh
     cycles['start_date'] = [pd.to_datetime(f, format='%Y%m%d%H') for f in cycles.loc[:, 'cycle_id']]
     cycles = cycles.set_index('cycle_id').sort_index()
     print('In list_gfs_cycles():')
@@ -98,6 +100,46 @@ def select_gfs_cycles(
 
     return(selected_cycles)
 
+def combine_gfs_cycles_temp(cycles: pd.DataFrame, fname: str, temp_dir: str, temp_name:str):
+    print('In combine_gfs_cycles():')
+    print(f'\tPreparing {len(cycles.index)-1} previous gfs cycles...', end='')
+    for i in range(len(cycles.index)-1):
+        with xr.open_dataset(cycles.fpath[i]) as ds:
+            dt = pd.to_timedelta(ds.time.diff(dim='time')[0])
+            start_time = cycles.start_date[i]
+            end_time = cycles.start_date[i+1] - dt # to avoid overlapping with the next
+            ds.sel(time=slice(start_time, end_time)).to_netcdf(os.path.join(temp_dir, f'{temp_name}_{i:02d}.nc'))
+    print(f'Done!')
+
+    # The last forecast
+    print(f'\tPreparing last cycle...', end='')
+    with xr.open_dataset(cycles.fpath[-1]) as ds:
+        ds.to_netcdf(
+            os.path.join(temp_dir, f'{temp_name}_{len(cycles.index):02d}.nc'), 
+            encoding={'time':{'units':'days since 1900-01-01'}}
+            )
+    print(f'Done!')
+
+    # Saving to a single file
+    print(f'\tMerging into {temp_name}_merged.nc ...', end='')
+    with xr.open_mfdataset(os.path.join(temp_dir, f'{temp_name}_*.nc')) as ds:
+        ds.to_netcdf(
+            os.path.join(temp_dir, f'{temp_name}_merged.nc'), 
+            encoding={'time':{'units':'days since 1900-01-01'}}
+        )
+    print('Done!')
+
+    # Interpolate and fill na
+    print(f'\tFilling na with linear interpolation and saving to {fname}...', end='')
+    with xr.open_dataset(os.path.join(temp_dir, f'{temp_name}_merged.nc')) as ds:
+        ds.interpolate_na(
+            dim='time'
+            ).to_netcdf(
+                fname,
+                encoding={'time':{'units':'days since 1900-01-01'}}
+            )
+    print('Done!')
+
 def combine_gfs_cycles(cycles: pd.DataFrame, fname: str):
     '''
     Combining gfs dataset from a list of `cycles`, and save to `fname`.
@@ -108,46 +150,24 @@ def combine_gfs_cycles(cycles: pd.DataFrame, fname: str):
     '''
     print('In combine_gfs_cycles():')
     temp_name = 'comgfs'
+    
+    if sys.platform == 'win32':
+        # windows has permission error problem
+        temp_dir = './tempdir_gfs'
+        try:
+            os.mkdir(temp_dir)
+        except FileExistsError:
+            pass
 
-    with tempfile.TemporaryDirectory(prefix='gfs') as temp_dir:
-        # Previous forecasts
-        print(f'\tPreparing {len(cycles.index)-1} previous gfs cycles...', end='')
-        for i in range(len(cycles.index)-1):
-            with xr.open_dataset(cycles.fpath[i]) as ds:
-                dt = pd.to_timedelta(ds.time.diff(dim='time'))[0]
-                start_time = cycles.start_date[i]
-                end_time = cycles.start_date[i+1] - dt # to avoid overlapping with the next
-                ds.sel(time=slice(start_time, end_time)).to_netcdf(os.path.join(temp_dir, f'{temp_name}_{i:02d}.nc'))
-        print(f'Done!')
-
-        # The last forecast
-        print(f'\tPreparing last cycle...', end='')
-        with xr.open_dataset(cycles.fpath[-1]) as ds:
-            ds.to_netcdf(
-                os.path.join(temp_dir, f'{temp_name}_{len(cycles.index):02d}.nc'), 
-                encoding={'time':{'units':'days since 1900-01-01'}}
-                )
-        print(f'Done!')
-
-        # Saving to a single file
-        print(f'\tMerging into {temp_name}_merged.nc ...', end='')
-        with xr.open_mfdataset(os.path.join(temp_dir, f'{temp_name}_*.nc')) as ds:
-            ds.to_netcdf(
-                os.path.join(temp_dir, f'{temp_name}_merged.nc'), 
-                encoding={'time':{'units':'days since 1900-01-01'}}
-            )
-        print('Done!')
-
-        # Interpolate and fill na
-        print(f'\tFilling na with linear interpolation and saving to {fname}...', end='')
-        with xr.open_dataset(os.path.join(temp_dir, f'{temp_name}_merged.nc')) as ds:
-            ds.interpolate_na(
-                dim='time'
-                ).to_netcdf(
-                    fname,
-                    encoding={'time':{'units':'days since 1900-01-01'}}
-                )
-        print('Done!')
+        try:
+            combine_gfs_cycles_temp(cycles=cycles, fname=fname, temp_dir=temp_dir, temp_name=temp_name)
+        except Exception as e:
+            raise e
+        finally:
+            shutil.rmtree(temp_dir)
+    else:
+        with tempfile.TemporaryDirectory(prefix='gfs', ) as temp_dir:
+            combine_gfs_cycles_temp(cycles=cycles, fname=fname, temp_dir=temp_dir, temp_name=temp_name)
 
 def create_gfs_data(
         start_date: pd.Timestamp, 
@@ -179,7 +199,9 @@ def create_gfs_data(
 
 
 if __name__=='__main__':
-    create_gfs_data(
+    print('''
+Example use: 
+>>> create_gfs_data(
         start_date='2022-09-07 04:00:00', 
         end_date='2022-09-13', 
         forecast_length='5D', 
@@ -188,3 +210,6 @@ if __name__=='__main__':
         fname_pattern='gfs*.nc', 
         fname_out='gfs.nc'
         )
+'''
+    )
+

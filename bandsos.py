@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 #%% imports
-from schism import Grid, Sflux, Bctides, Tidefacout
-from gfs import create_gfs_data
+from bandsos.schism import Grid, Sflux, Bctides, Tidefacout
+from bandsos.gfs import create_gfs_data
 
 import xarray as xr
 import pandas as pd

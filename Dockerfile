@@ -30,7 +30,14 @@ RUN apt-get update \
 RUN pip install utide cmocean rioxarray
 ENV PROJ_DATA=/usr/share/proj
 
-# create tidefac executable
+# install bandsos-platform toolbox
+RUN git clone https://github.com/jamal919/bandsos-platform \
+    && cd bandsos-platform \
+    && pip install . \
+    && cd scripts \
+    && gfortran -o tidefac tide_fac.f \
+    && cp -v tidefac /usr/bin \
+    && rm -rf /bandsos-platform
 
 WORKDIR /mnt
 

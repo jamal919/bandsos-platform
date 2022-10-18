@@ -31,8 +31,8 @@ RUN pip install utide cmocean rioxarray
 ENV PROJ_DATA=/usr/share/proj
 
 # install bandsos-platform toolbox
-RUN git clone https://github.com/jamal919/bandsos-platform \
-    && cd bandsos-platform \
+COPY . /bandsos-platform
+RUN cd bandsos-platform \
     && pip install . \
     && cd scripts \
     && gfortran -o tidefac tide_fac.f \

@@ -228,6 +228,10 @@ def run_model(model_exe, ncpu, nscribe, run_dir):
 
 
 if __name__=='__main__':
+
+    # Check environment variables GH_USER, GH_TOKEN, PRODUCER, EMAIL
+    # Check config, fluxes/discharge
+
     try:
         cycle = sys.argv[1]
     except:

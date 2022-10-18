@@ -12,6 +12,9 @@ import re
 
 class GFS_0p25_1hr:
     def __init__(self, data_dir='./gfs', data_prefix='gfs_', url='http://nomads.ncep.noaa.gov:80/dods/gfs_0p25_1hr'):
+        '''
+        Checking and downloading new data from web for gfs dataset.
+        '''
         self.url = url
         self.data_dir = data_dir
         self.data_prefix = data_prefix
@@ -23,6 +26,9 @@ class GFS_0p25_1hr:
             os.mkdir(self.data_dir)
 
     def check(self, min_file_size=1000000):
+        '''
+        Check online for new cycles, and returns true if new cycle is available, false otherwise.
+        '''
         self.available = self._list_available_cycles(days=self._list_available_days())
         self.downloaded = self._list_downloaded_cycles(min_file_size=min_file_size)
         self.remaining = self._list_remaining_cycles()
@@ -35,6 +41,9 @@ class GFS_0p25_1hr:
             return False
 
     def _list_downloaded_cycles(self, min_file_size):
+        '''
+        List the downloaded forecast cycles locally.
+        '''
         downloaded = {}
         fpaths = glob(os.path.join(self.data_dir, f'{self.data_prefix}*.nc'))
         fnames = [os.path.basename(fpath) for fpath in fpaths]
@@ -59,6 +68,9 @@ class GFS_0p25_1hr:
         return(remaining)
 
     def _list_available_days(self):
+        '''
+        List available days online
+        '''
         response = requests.get(self.url)
         initial = response.text.split('<hr>')[1].replace('<br>', '').replace('<b>', '').replace('</b>', '')
         day_url_list = [line.split('"')[1] for line in initial.split('\n')[1:-2]]

@@ -30,3 +30,6 @@ dependencies = [
 [project.urls]
 Home = "https://jamalkhan.me/bandsos"
 Repo = "https://github.com/jamal919/bandsos-platform"
+
+[tool.flit.sdist]
+exclude = ["docs", "examples", "notebooks", "scripts"]

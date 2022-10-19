@@ -25,6 +25,13 @@ class GFS_0p25_1hr:
         if not os.path.exists(self.data_dir):
             os.mkdir(self.data_dir)
 
+    @property
+    def last(self):
+        '''
+        Gives the last cycle name.
+        '''
+        return(np.array([k for k in self.remaining.keys()])[-1])
+
     def check(self, min_file_size=1000000):
         '''
         Check online for new cycles, and returns true if new cycle is available, false otherwise.

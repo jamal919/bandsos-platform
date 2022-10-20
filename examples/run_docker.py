@@ -15,7 +15,6 @@ import logging
 
 import subprocess
 import os
-import sys
 import time
 from glob import glob
 import json
@@ -368,13 +367,30 @@ if __name__=='__main__':
     
     # Forecast loop
     while True:
+        # Check if a new gfs forecast is available
         try:
             gfs_available = gfs.check()
         except:
             logging.error('Could not check GFS data... Going to try in 10 minutes.')
+
+        cycle = gfs.last # yyyymmddhh format
+
+        # Check if last forecast is already done by checking if there is manifest file in the forecast directory
+        cycle_dir = GithubDirectory(
+            fdir=os.path.join(fdir_paths['forecasts_dir'], cycle), 
+            username=os.environ['GH_USER'], 
+            access_token=os.environ['GH_TOKEN'], 
+            license='mit')
         
-        if gfs_available:
-            cycle = gfs.last # yyyymmddhh format
+        cycle_manifest_available = os.path.exists(os.path.join(cycle_dir.fdir, 'manifest.json'))
+        reforecast_needed = not cycle_manifest_available
+        if cycle_manifest_available:
+            logging.info(f'{cycle} already done.')
+        else:
+            logging.info(f'{cycle} needs to be run.')
+        
+        # Starting forecast or going to sleep based on availability condition
+        if gfs_available or reforecast_needed:
             status.update(
                 {
                     'cycle':cycle,
@@ -391,15 +407,16 @@ if __name__=='__main__':
         else:
             logging.info('No new cycle available... Going to check servers in 10 minutes.')
             time.sleep(10*60) # seconds
+            continue
 
         # Model generation
         try:
-            model_generate(cycle=cycle, fdir_paths=fdir_paths, forecast_config=forecast_config)
+            model_generate(cycle=cycle, fdir_paths=fdir_paths, forecast_config=forecast_config, executables=executables)
         except Exception as e:
             log_file = os.path.join(fdir_paths['log_dir'], f'{cycle}.fatal')
             logging.error(f'Model could not be generated for cycle {cycle}. Check {log_file}.')
             with open(log_file, 'w') as f:
-                f.write(e)
+                f.write(repr(e))
 
             status.update(
                 {
@@ -438,7 +455,7 @@ if __name__=='__main__':
             log_file = os.path.join(fdir_paths['log_dir'], f'{cycle}.fatal')
             logging.error(f'Model could not be run for cycle {cycle}. Check {log_file}.')
             with open(log_file, 'w') as f:
-                f.write(e)
+                f.write(repr(e))
 
             status.update(
                 {

@@ -30,7 +30,7 @@ class GFS_0p25_1hr:
         '''
         Gives the last cycle name.
         '''
-        return(np.array([k for k in self.remaining.keys()])[-1])
+        return(np.array([k for k in self.available.keys()])[-1])
 
     def check(self, min_file_size=1000000):
         '''

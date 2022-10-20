@@ -27,17 +27,17 @@ RUN git clone https://github.com/schism-dev/schism \
 RUN apt-get update \
     && apt-get install -y python3-numpy python3-pandas python3-xarray python3-gdal gdal-bin python3-cartopy python3-rasterio \
     && apt-get clean
-RUN pip install utide cmocean rioxarray
+RUN pip install utide cmocean rioxarray ghapi f90nml
 ENV PROJ_DATA=/usr/share/proj
 
 # install bandsos-platform toolbox
-COPY . /bandsos-platform
-RUN cd bandsos-platform \
+COPY . /tmp/bandsos-platform
+RUN cd /tmp/bandsos-platform \
     && pip install . \
     && cd scripts \
     && gfortran -o tidefac tide_fac.f \
     && cp -v tidefac /usr/bin \
-    && rm -rf /bandsos-platform
+    && rm -rf /tmp/bandsos-platform 
 
 WORKDIR /mnt
 

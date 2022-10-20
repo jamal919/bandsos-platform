@@ -92,9 +92,10 @@ class GithubDirectory:
         check_call(['git', 'branch', '-M', 'main'], cwd=self.fdir)
 
         if len(branches) == 0:
-            check_call(['git', 'push', '-u', 'origin', 'main'], cwd=self.fdir)
+            check_call(['git', 'push', '--set-upstream', 'origin', 'main'], cwd=self.fdir)
         else:
             check_call(['git', 'pull', 'origin', 'main'], cwd=self.fdir)
+            check_call(['git', 'push', '--set-upstream', 'origin', 'main'], cwd=self.fdir)
 
         # Then activate the github pages
         try:
@@ -117,6 +118,6 @@ class GithubDirectory:
         for fpath in fpaths:
             check_call(['git', 'add', fpath], cwd=self.fdir)
         
-        check_call(['git', 'commit', '-m', message])
-        check_call(['git', 'push', '--force'])
+        check_call(['git', 'commit', '-m', message], cwd=self.fdir)
+        check_call(['git', 'push', '--force'], cwd=self.fdir)
         

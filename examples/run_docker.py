@@ -16,7 +16,6 @@ import logging
 import subprocess
 import os
 import time
-from glob import glob
 import json
 
 SECONDS2DAY = 1/86400
@@ -279,7 +278,7 @@ def model_generate(cycle, fdir_paths, forecast_config, executables):
     subprocess.call(['cp', '-v', os.path.join(fdir_paths['config_dir'], 'wwmbnd.gr3.inactive'), os.path.join(cycle_dir.fdir, 'wwmbnd.gr3')])
 
     if not os.path.exists(os.path.join(cycle_dir.fdir, 'outputs')):
-        os.mkdir(os.path.join(cycle_dir, 'outputs'))
+        os.mkdir(os.path.join(cycle_dir.fdir, 'outputs'))
 
 
 if __name__=='__main__':
@@ -438,7 +437,7 @@ if __name__=='__main__':
             ncpu = os.cpu_count()/2
             model_exe = executables['schism_WWM_exe']
             nscribe = 1 # scribed output
-            subprocess.check_call(['mpirun', '-np', f'{ncpu}', model_exe, f'{nscribe}'])
+            subprocess.check_call(['mpirun', '-np', f'{ncpu}', model_exe, f'{nscribe}'], cwd=cycle_dir.fdir)
             status.update(
                 {
                     'cycle':cycle,

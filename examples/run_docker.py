@@ -1,15 +1,28 @@
 #!/usr/bin/env python
+'''
+A forecasting script using bandsos platform for Bengal delta region. The script illustrates various functionalities
+available in the bandsos toolbox. This program is particularly developed to be deployed using the jamal919/bandsos 
+docker environment. You will need the environment variables listed in run.env file.
+'''
+__version__ = '0.1'
 
-import shutil
 from bandsos.schism import Grid, Sflux, Bctides, Tidefacout
 from bandsos.webdata import GFS_0p25_1hr
 from bandsos.webdir import GithubDirectory
 from bandsos.gfs import create_gfs_data
+from bandsos.color import Colormap
+from bandsos.post import create_water_level_tiles, create_water_level_stations
 
 import xarray as xr
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+import cmocean.cm as ccm
+
+import shutil
 import f90nml
 import logging
 
@@ -434,10 +447,12 @@ if __name__=='__main__':
         
         # Model integration
         try:
+            logging.info(f'Starting model integration for {cycle}')
             ncpu = os.cpu_count()/2
             model_exe = executables['schism_WWM_exe']
             nscribe = 1 # scribed output
             subprocess.check_call(['mpirun', '-np', f'{ncpu}', model_exe, f'{nscribe}'], cwd=cycle_dir.fdir)
+            logging.info(f'Finished model integration for {cycle}')
             status.update(
                 {
                     'cycle':cycle,
@@ -469,3 +484,165 @@ if __name__=='__main__':
         
             status_dir.add(fpaths=[status_file], message=f':boom: Model integration fails for {cycle}')
             continue
+
+        # Check if the results (in out2d_1.nc) is created properly
+        logging.info(f'Checking if output is geneared for {cycle}')
+        out_nc = os.path.join(cycle_dir.fdir, 'outputs', 'out2d_1.nc')
+        if os.path.exists(out_nc):
+            status.update(
+                {
+                    'cycle':cycle,
+                    'status':'done',
+                    'lastupdate':pd.to_datetime('now').strftime('%Y-%m-%d %H:%M:%S')
+                }
+            )
+            with open(status_file, 'w') as f:
+                json.dump(status, f, indent=4, separators=(', ', ': '))
+        
+            status_dir.add(fpaths=[status_file], message=f':tada: Model integration done for {cycle}')
+            logging.info(f'Output is generated for {cycle}')
+        else:
+            logging.error(f'Model result is not found for cycle {cycle}. Continuing forecast loop.')
+            status.update(
+                {
+                    'cycle':cycle,
+                    'status':'failed',
+                    'lastupdate':pd.to_datetime('now').strftime('%Y-%m-%d %H:%M:%S')
+                }
+            )
+
+            with open(status_file, 'w') as f:
+                json.dump(status, f, indent=4, separators=(', ', ': '))
+        
+            status_dir.add(fpaths=[status_file], message=f':boom: Model integration fails for {cycle}')
+            continue
+
+        # Post-processing and result upload
+        ## Processing the tiles
+        logging.info(f'Creating output tiles for {cycle}.')
+        values=np.arange(-5, 5.1, 0.01) # the range of values we want for colorbar
+        colormap = Colormap(values=values, cmap=ccm.balance, midpoint=0)
+        tiles_extent = [86, 93, 20.5, 24]
+        tiles_resolution = 0.0025 # 250m
+        colorbar_ticks = np.arange(-5, 5.1, 1)
+        
+        output_forecast_dir = os.path.join(cycle_dir.fdir, 'forecasts')
+        if not os.path.exists(output_forecast_dir):
+            os.mkdir(os.path.join(cycle_dir.fdir, 'forecasts'))
+        if not os.path.exists(os.path.join(os.path.join(cycle_dir.fdir, 'forecasts', 'elev'))):
+            os.mkdir(os.path.join(cycle_dir.fdir, 'forecasts', 'elev'))
+        out_tiles = os.path.join(cycle_dir.fdir, 'forecasts', 'elev', 'tiles')
+        if not os.path.exists(out_tiles):
+            os.mkdir(out_tiles)
+        tiles = create_water_level_tiles(
+            out_nc=out_nc, 
+            outdir=out_tiles, 
+            colormap=colormap, 
+            extent=tiles_extent,
+            resolution=tiles_resolution)
+        logging.info(f'Output tiles are generated for {cycle}.')
+        
+        ## Creating colorbar
+        logging.info(f'Generating colorbar for output tiles for {cycle}.')
+        fig, ax = plt.subplots(figsize=(0.5, 2.5), facecolor=None)
+        norm = mcolors.TwoSlopeNorm(vmin=np.min(values), vcenter=0., vmax=np.max(values))
+        sc = ax.scatter(np.random.randn(len(values)), np.random.randn(len(values)), c=values, cmap=ccm.balance, norm=norm)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes(position='right', size='50%')
+        plt.colorbar(sc, cax=cax, orientation='vertical', extend='both')
+        cax.set_yticks(colorbar_ticks)
+        ax.set_visible(False)
+        plt.savefig(os.path.join(out_tiles, 'colorbar.png'), dpi=150, bbox_inches='tight')
+        plt.close()
+        logging.info(f'Colorbar is generated for {cycle}')
+
+        ## Creating stations
+        logging.info(f'Creating station output for {cycle}')
+        out_station = os.path.join(cycle_dir.fdir, 'forecasts', 'elev', 'stations')
+        if not os.path.exists(out_station):
+            os.mkdir(out_station)
+        stations = create_water_level_stations(
+            out_nc=out_nc, 
+            outdir=out_station, 
+            station_in=os.path.join(cycle_dir.fdir, 'station.in')
+            )
+        logging.info(f'Station output is created for {cycle}')
+
+        ## Creating manifest
+        logging.info(f'Starting manifest creation for {cycle}')
+        manifest = {
+            "cycle":cycle,
+            "date":pd.to_datetime(cycle, format="%Y%m%d%H").strftime('%Y-%m-%d %H:%M:%S'),
+            "lastupdate":pd.to_datetime('now').strftime('%Y-%m-%d %H:%M:%S'),
+            "producer":os.environ['PRODUCER'],
+            "version":__version__,
+            "forecasts":[
+                {
+                    "name":"Water level",
+                    "src":"forecasts/elev",
+                    "layers": [
+                        {
+                            "name":"Map",
+                            "type":"tiles",
+                            "timeseries":True,
+                            "colorbar":True,
+                            "colorbar_file":"colorbar.png",
+                            "colorscale":None,
+                            "timestamps":tiles
+                        },
+                        {
+                            "name":"Water level",
+                            "type":"stations",
+                            "stations":stations
+                        }
+                    ]
+                }
+            ]
+        }
+
+        output_manifest_file = os.path.join(cycle_dir.fdir, 'manifest.json')
+        with open(output_manifest_file, 'w') as f:
+            json.dump(manifest, f, indent=4, separators=(', ', ': '))
+
+        logging.info(f'Manifest is created for {cycle}.')
+
+        # Uploading the forecast
+        logging.info(f'Publishing the results for {cycle}.')
+        try:
+            status_dir.add(
+                fpaths=[output_forecast_dir, output_manifest_file], 
+                message=f':rocket: Forecast published for {cycle}'
+            )
+
+            status.update(
+                {
+                    'cycle':cycle,
+                    'status':'published',
+                    'lastupdate':pd.to_datetime('now').strftime('%Y-%m-%d %H:%M:%S')
+                }
+            )
+            with open(status_file, 'w') as f:
+                json.dump(status, f, indent=4, separators=(', ', ': '))
+        
+            status_dir.add(fpaths=[status_file], message=f':rocket: Forecast published for {cycle}')
+        except:
+            logging.error(f'Problem with publishing for cycle {cycle}. Continuing forecast loop.')
+            status.update(
+                {
+                    'cycle':cycle,
+                    'status':'failed',
+                    'lastupdate':pd.to_datetime('now').strftime('%Y-%m-%d %H:%M:%S')
+                }
+            )
+
+            with open(status_file, 'w') as f:
+                json.dump(status, f, indent=4, separators=(', ', ': '))
+        
+            status_dir.add(fpaths=[status_file], message=f':boom: Problem with publishing for {cycle}')
+            continue
+        
+        # forecast loop continues from the top again
+
+
+
+

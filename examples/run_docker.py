@@ -609,7 +609,7 @@ if __name__=='__main__':
         # Uploading the forecast
         logging.info(f'Publishing the results for {cycle}.')
         try:
-            status_dir.add(
+            cycle_dir.add(
                 fpaths=[output_forecast_dir, output_manifest_file], 
                 message=f':rocket: Forecast published for {cycle}'
             )

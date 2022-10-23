@@ -618,6 +618,10 @@ if __name__=='__main__':
                 {
                     'cycle':cycle,
                     'status':'published',
+                    'lastforecast':{
+                        'date':pd.to_datetime(cycle, format="%Y%m%d%H").strftime('%Y-%m-%d'),
+                        'cycle':pd.to_datetime(cycle, format="%Y%m%d%H").strftime('%H')
+                    },
                     'lastupdate':pd.to_datetime('now').strftime('%Y-%m-%d %H:%M:%S')
                 }
             )

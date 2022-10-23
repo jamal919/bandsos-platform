@@ -68,7 +68,12 @@ class GithubDirectory:
         # Then create locally
         if not os.path.exists(self.fdir):
             os.mkdir(self.fdir)
+        
+        # Initialize git repository
+        try:
             check_call([self.git, 'init'], cwd=self.fdir)
+        except Exception as e:
+            print(e)
 
         # Check if online branch exists, if exists pull, else create a dummy readme, and push to start the branch
         try:

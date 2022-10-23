@@ -576,8 +576,8 @@ if __name__=='__main__':
             "lastupdate":pd.to_datetime('now').strftime('%Y-%m-%d %H:%M:%S'),
             "producer":os.environ['PRODUCER'],
             "version":__version__,
-            "forecasts":[
-                {
+            "forecasts": {
+                "elev": {
                     "name":"Water level",
                     "src":"forecasts/elev",
                     "layers": [
@@ -597,7 +597,7 @@ if __name__=='__main__':
                         }
                     ]
                 }
-            ]
+            }
         }
 
         output_manifest_file = os.path.join(cycle_dir.fdir, 'manifest.json')

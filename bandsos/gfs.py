@@ -1,6 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''
+This module provides functionalities to sort and combine already downloaded GFS forecasts into a single netCDF file. This
+functionality is particularly useful when unique sagments from previous gfs forecasts are needed to be combined together
+to get a continuous sflux file.
+
+.. warning::
+    This module does not provides any classes currently and the the functions in this modules are standalone.  As the 
+    functionalities are not yet formalized into a data class. However, in future version this functions might be 
+    depricated and marged into a data class.
+
+'''
+
 import warnings
 import xarray as xr
 import numpy as np
@@ -104,7 +116,7 @@ def select_gfs_cycles(
 
     return(selected_cycles)
 
-def combine_gfs_cycles_temp(cycles: pd.DataFrame, fname: str, temp_dir: str, temp_name:str):
+def _combine_gfs_cycles_temp(cycles: pd.DataFrame, fname: str, temp_dir: str, temp_name:str):
     print(f'\tPreparing {len(cycles.index)-1} previous gfs cycles...', end='')
     for i in range(len(cycles.index)-1):
         with xr.open_dataset(cycles.fpath[i]) as ds:
@@ -149,7 +161,7 @@ def combine_gfs_cycles(cycles: pd.DataFrame, fname: str):
 
     Cycles - should have index(cycle name), fpath, start_date
 
-    This method generates temporary files in system temporary folder and cleans them up upon completion or failure. 
+    This method generates temporary files in system temporary folder and cleans them up upon completion or failure.
     '''
     print('In combine_gfs_cycles():')
     temp_name = 'comgfs'
@@ -163,14 +175,14 @@ def combine_gfs_cycles(cycles: pd.DataFrame, fname: str):
             pass
 
         try:
-            combine_gfs_cycles_temp(cycles=cycles, fname=fname, temp_dir=temp_dir, temp_name=temp_name)
+            _combine_gfs_cycles_temp(cycles=cycles, fname=fname, temp_dir=temp_dir, temp_name=temp_name)
         except Exception as e:
             raise e
         finally:
             shutil.rmtree(temp_dir)
     else:
         with tempfile.TemporaryDirectory(prefix='gfs', ) as temp_dir:
-            combine_gfs_cycles_temp(cycles=cycles, fname=fname, temp_dir=temp_dir, temp_name=temp_name)
+            _combine_gfs_cycles_temp(cycles=cycles, fname=fname, temp_dir=temp_dir, temp_name=temp_name)
 
 def create_gfs_data(
         start_date: pd.Timestamp, 

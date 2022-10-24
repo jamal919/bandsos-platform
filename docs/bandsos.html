@@ -39,6 +39,41 @@
             <input type="search" placeholder="Search..." role="searchbox" aria-label="search"
                    pattern=".+" required>
 
+        <h2>Contents</h2>
+        <ul>
+  <li><a href="#installation">Installation</a>
+  <ul>
+    <li><a href="#system-wide-installation">System-wide installation</a></li>
+    <li><a href="#condaanaconda-installation">Conda/Anaconda installation</a></li>
+    <li><a href="#docker-container">Docker container</a></li>
+    <li><a href="#run-folder-structure">Run folder structure</a></li>
+    <li><a href="#how-to-run">How to run</a></li>
+  </ul></li>
+  <li><a href="#schism-model">SCHISM Model</a>
+  <ul>
+    <li><a href="#mesh-generation">Mesh generation</a></li>
+    <li><a href="#inputs">Inputs</a></li>
+    <li><a href="#modules">Modules</a></li>
+    <li><a href="#examples">Examples</a></li>
+  </ul></li>
+  <li><a href="#running-bandsos-system">Running BandSOS system</a>
+  <ul>
+    <li><a href="#hindcast">Hindcast</a></li>
+    <li><a href="#forecast">Forecast</a></li>
+  </ul></li>
+  <li><a href="#publishing-online">Publishing Online</a>
+  <ul>
+    <li><a href="#githubgithub-pages">Github/Github pages</a></li>
+    <li><a href="#folder-structure">Folder structure</a></li>
+    <li><a href="#manifestjson">manifest.json</a></li>
+  </ul></li>
+  <li><a href="#references">References</a></li>
+  <li><a href="#example-scripts">Example scripts</a>
+  <ul>
+    <li><a href="#full-forecast-script">Full forecast script</a></li>
+  </ul></li>
+</ul>
+
 
         <h2>Submodules</h2>
         <ul>
@@ -64,19 +99,1053 @@
                     <h1 class="modulename">
 bandsos    </h1>
 
-                        <div class="docstring"><p>BandSOS system package</p>
+                        <div class="docstring"><div class="pdoc-alert pdoc-alert-danger">
+
+<p>This toolbox is still in its major version 0. The interface is expected to change during its development, caution is
+adviced.</p>
+
+</div>
+
+<p><code><a href="">bandsos</a></code> is a python package developed under the framework of BandSOS project. <code><a href="">bandsos</a></code> toolbox provides necessary 
+and functions to deploy a coastal flood forecasting system. The toolbox is currently published under GPL v3 license.</p>
+
+<div class="pdoc-alert pdoc-alert-warning">
+
+<p>Please direct your advice, contribution, bug reports to the <a href="https://github.com/jamal919/bandsos-platform">github repository</a></p>
+
+</div>
+
+<div class="pdoc-alert pdoc-alert-note">
+
+<h6 id="bandsos-project">BandSOS Project</h6>
+
+<p>Experimented on the Bengal delta in Bangladesh, BanD-SOS project aims to establish a pre-operational service for forecasting 
+cyclonic flooding and the associated societal risk. This service will have two components: a forecast of the coastal 
+flooding hazard in real time that uses a state-of-the-art coupled hydrodynamic-wave modelling platform, and a coupling 
+of this forecast with a mapping of the vulnerability of the exposed areas. The project is a collaboration with Bangladesh
+Water Development Board (BWDB) - the government engineering organization of Bangladesh which manages the water resource
+infrastructure and tasked with providing the flood forecasting to the vast community of Bangladesh.</p>
+
+</div>
+
+<h1 id="installation">Installation</h1>
+
+<p>The bandsos toolbox is written in python3, and tested in python v3.6+. The source-code is freely available under GPL-3
+license at our <a href="https://github.com/jamal919/bandsos-platform">github repository</a>. The source-code can be obtained through
+<code>git</code> using <code>git clone https://github.com/jamal919/bandsos-platform</code>, or directly downloading from the repository.</p>
+
+<p>The toolbox is published at python package repository (pypi/pip) at <a href="https://pypi.org/project/bandsos/">https://pypi.org/project/bandsos/</a>, and typically can
+be installed through <code>pip install bandsos</code>. However, some modules depends on some external open-source tools, that might
+be complicated to install in some system, and all the functionalities (mainly tile generation) might not work. A fully 
+functioning version of the toolbox can be installed and used in several ways - </p>
+
+<ul>
+<li><a href="#system-wide-installation">system-wide installation</a></li>
+<li><a href="#condaanaconda-installation">Conda/Anaconda installation</a></li>
+<li><a href="#stand-alone-installation">docker container</a></li>
+</ul>
+
+<h2 id="system-wide-installation">System-wide installation</h2>
+
+<p>bandsos toolbox relies on a moderate number of external packages and opensource softwares. Particularly, the toolbox 
+relies on gdal - a command-line based geographical data processing toolbox - for postprocessing the model outputs to 
+webtiles. The rest of the python packages are installable from the pip. Gdal is often 
+available through the software distribution system of linux, but on windows it is particularly difficult to get it
+working with the rest of the system and python. For this reason - <em>we strongly advice to use conda installation system</em>. </p>
+
+<p>To install the toolbox system-wide in linux, install <code>python</code>, <code>numpy</code>, <code>scipy</code>, <code>gdal-python</code>, <code>gdal</code>, <code>proj</code>, <code>xarray</code>, 
+<code>netcdf4</code>, <code>f90nml</code>, <code>utide</code>, <code>rioxarray</code>, <code>beautifulsoup4</code>. Install as many packages from the system repository as 
+possible, then the rest can be installed through pip using <code>pip install &lt;packagename&gt;</code> (where <packagename> is to be 
+replaced with your needed package name).</p>
+
+<p>The system-wide installation is tested while developing the <a href="#docker-container">docker container</a>. Please consult the
+<code>Dockerfile</code> to see which packages were installed in a Ubuntu 22.04 LTS system.</p>
+
+<h2 id="condaanaconda-installation">Conda/Anaconda installation</h2>
+
+<h3 id="windowsmac">Windows/Mac</h3>
+
+<h3 id="linux">Linux</h3>
+
+<ul>
+<li>Install docker normally from <a href="https://docs.docker.com/engine/install/">https://docs.docker.com/engine/install/</a></li>
+<li>Activate sudo systemctl start docker</li>
+<li>Enable for load on startup sudo systemctl enable docker</li>
+<li>sudo groupadd docker</li>
+<li>sudo usermod -aG docker $USER</li>
+</ul>
+
+<h2 id="docker-container">Docker container</h2>
+
+<h2 id="run-folder-structure">Run folder structure</h2>
+
+<pre><code>- ROOTDIR
+    |- config
+    |- fluxes
+        |- gfs
+        |- hwrf
+        |- jtwc
+        |- discharge
+    |- forecasts
+    |- scripts
+</code></pre>
+
+<h2 id="how-to-run">How to run</h2>
+
+<ul>
+<li>bandsos.py</li>
+<li>bandsos.env</li>
+</ul>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>docker run --rm --env-file<span class="o">=</span>bandsos.env -v <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/config:/bandsos/config -v <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/fluxes:/bandsos/fluxes
+</code></pre>
+</div>
+
+<h1 id="schism-model">SCHISM Model</h1>
+
+<h2 id="mesh-generation">Mesh generation</h2>
+
+<h2 id="inputs">Inputs</h2>
+
+<h2 id="modules">Modules</h2>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="2d-model-with-tide">2D model with tide</h3>
+
+<h3 id="2d-model-with-atmosphere">2D model with atmosphere</h3>
+
+<h3 id="2d-model-with-coupled-wwm">2D model with coupled WWM</h3>
+
+<h1 id="running-bandsos-system">Running BandSOS system</h1>
+
+<p>Scripting the BandSOS system is quite easy, thanks to the python programming language. The script is run in a system or 
+docker environment where <code><a href="">bandsos</a></code> library is installed. Please see the <code>examples</code> folder in the repository for some
+demonstration how the scripts can be developed. </p>
+
+<div class="pdoc-alert pdoc-alert-note">
+
+<p>In the alpha version, the full workflow is needed to be integrated into the running script. In future development
+of the interface, more concise version is planned to be developed.</p>
+
+</div>
+
+<h2 id="hindcast">Hindcast</h2>
+
+<pre><code>{
+    'cycle':'yyyymmddhh',
+    'producer':'producer',
+    'status':'ongoing' &lt;ongoing, failed, done, published&gt;,
+    'lastupdate':'2020-05-17 00:00:00'
+    'lastforecast':{
+                'date':'2020-05-17',
+                'cycle':'00'
+            }
+}
+</code></pre>
+
+<h2 id="forecast">Forecast</h2>
+
+<h1 id="publishing-online">Publishing Online</h1>
+
+<h2 id="githubgithub-pages">Github/Github pages</h2>
+
+<ul>
+<li>Creating an account</li>
+<li>Cloning the website</li>
+<li>Setup github pages</li>
+</ul>
+
+<h2 id="folder-structure">Folder structure</h2>
+
+<pre><code>|- fluxes
+    |- netcdf
+        |- gfs.nc
+    |- tracks
+        |- bioxxxxxx.dat
+        |- aioxxxxxx.dat
+|- advisories
+    |- jtwc
+|- forecasts
+    |- elev
+        |- tiles
+            |- 2022010100
+            |- 2022010103
+            |- ...
+            |- etc.
+        |- stations
+            |- WL001.csv
+            |- WL002.csv
+            |- etc.
+    |- maxelev
+        |- tiles
+            |- 20220101
+            |- 20220102
+            |- 20220103
+            |- ...
+            |- etc.
+    |- risk
+        |- tiles
+            |- 20220101
+            |- 20220102
+            |- 20220103
+            |- ...
+            |- etc.
+    |- track
+        |- forecast.json
+        |- best.json
+        |- model.json
+</code></pre>
+
+<h2 id="manifestjson">manifest.json</h2>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;cycle&quot;</span><span class="p">:</span><span class="s2">&quot;2022020100&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="s2">&quot;yyyy-mm-dd HH:MM:SS&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;lastupdate&quot;</span><span class="p">:</span><span class="s2">&quot;yyyy-mm-dd HH:MM:SS&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;producer&quot;</span><span class="p">:</span><span class="s2">&quot;FFWC/BWDB&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;0.1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;advisories&quot;</span><span class="p">:[</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;JTWC&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;agency&quot;</span><span class="p">:</span><span class="s2">&quot;JTWC&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="s2">&quot;https://www.metoc.navy.mil/jtwc/jtwc.html&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="s2">&quot;advisories/jtwc.dat&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;fluxes&quot;</span><span class="p">:[</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;GFS 0.25 deg&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;netcdf&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;available&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="s2">&quot;NOAA/NCEP&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="s2">&quot;fluxes/netcdf/gfs.nc&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;NOAA/NCEP&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;atcf&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;available&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="s2">&quot;NOAA/NCEP&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="s2">&quot;fluxes/tracks/aio_yyyymmddhh.dat&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;JTWC/BEST Track&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;atcf&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;available&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="s2">&quot;NOAA/NCEP&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="s2">&quot;fluxes/tracks/bio_yyyymmddhh.dat&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;HWRF&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;atcf&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;available&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="s2">&quot;NOAA/NCEP&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="s2">&quot;fluxes/tracks/hwrf_yyyymmddhh.dat&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;forecasts&quot;</span><span class="p">:[</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Water level&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="s2">&quot;forecasts/elev&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Map&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;tiles&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;timeseries&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;colorbar&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;colorbar_file&quot;</span><span class="p">:</span><span class="s2">&quot;colorbar.png&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;colorscale&quot;</span><span class="p">:[{</span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="s2">&quot;color&quot;</span><span class="p">}],</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;timestamps&quot;</span><span class="p">:[</span><span class="w"></span>
+<span class="w">                        </span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">&quot;time&quot;</span><span class="p">:</span><span class="s2">&quot;2020-05-15 03:00:00&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">&quot;folder&quot;</span><span class="p">:</span><span class="s2">&quot;2020051503&quot;</span><span class="w"></span>
+<span class="w">                        </span><span class="p">},</span><span class="w"></span>
+<span class="w">                        </span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;etc&quot;</span><span class="w"></span>
+<span class="w">                        </span><span class="p">}</span><span class="w"></span>
+<span class="w">                    </span><span class="p">]</span><span class="w"></span>
+<span class="w">                </span><span class="p">},</span><span class="w"></span>
+<span class="w">                </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Water level&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;stations&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;stations&quot;</span><span class="p">:[</span><span class="w"></span>
+<span class="w">                        </span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;WL062&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                            </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">89.8044</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                            </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">22.6486</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bagerhat&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                            </span><span class="nt">&quot;org&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BWDB&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unknown&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                        </span><span class="p">}</span><span class="w"></span>
+<span class="w">                    </span><span class="p">]</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">],</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Water level (maximum)&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="s2">&quot;forecasts/maxelev&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Map&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;tiles&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;timeseries&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;colorbar&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;colorscale&quot;</span><span class="p">:{</span><span class="w"></span>
+<span class="w">                        </span><span class="p">[</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="s2">&quot;color&quot;</span><span class="w"></span>
+<span class="w">                        </span><span class="p">]</span><span class="w"></span>
+<span class="w">                    </span><span class="p">},</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;timestamps&quot;</span><span class="p">:[</span><span class="w"></span>
+<span class="w">                        </span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">&quot;time&quot;</span><span class="p">:</span><span class="s2">&quot;2020-05-15&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">&quot;folder&quot;</span><span class="p">:</span><span class="s2">&quot;20200515&quot;</span><span class="w"></span>
+<span class="w">                        </span><span class="p">},</span><span class="w"></span>
+<span class="w">                        </span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;etc&quot;</span><span class="w"></span>
+<span class="w">                        </span><span class="p">}</span><span class="w"></span>
+<span class="w">                    </span><span class="p">]</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">]</span><span class="w"></span>
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Risk&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;src&quot;</span><span class="p">:</span><span class="s2">&quot;forecasts/risk&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">                </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;tiles&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;timeseries&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;colorbar&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;colorscale&quot;</span><span class="p">:{</span><span class="w"></span>
+<span class="w">                        </span><span class="p">[</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="s2">&quot;color&quot;</span><span class="w"></span>
+<span class="w">                        </span><span class="p">]</span><span class="w"></span>
+<span class="w">                    </span><span class="p">},</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">&quot;timestamps&quot;</span><span class="p">:[</span><span class="w"></span>
+<span class="w">                        </span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">&quot;time&quot;</span><span class="p">:</span><span class="s2">&quot;2020-05-15&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">&quot;folder&quot;</span><span class="p">:</span><span class="s2">&quot;20200515&quot;</span><span class="w"></span>
+<span class="w">                        </span><span class="p">},</span><span class="w"></span>
+<span class="w">                        </span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;etc&quot;</span><span class="w"></span>
+<span class="w">                        </span><span class="p">}</span><span class="w"></span>
+<span class="w">                    </span><span class="p">]</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">]</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;tracks&quot;</span><span class="p">:[</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">]</span><span class="w"></span>
+<span class="p">]</span><span class="w"></span>
+</code></pre>
+</div>
+
+<h1 id="references">References</h1>
+
+<h1 id="example-scripts">Example scripts</h1>
+
+<h2 id="full-forecast-script">Full forecast script</h2>
+
+<p>Below is an example of a full forecast script - source code available in github repository. See <a href="#how-to-run">How to run</a> 
+section to see how you can run the following scripts.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">A forecasting script using bandsos platform for Bengal delta region. The script illustrates various functionalities</span>
+<span class="sd">available in the bandsos toolbox. This program is particularly developed to be deployed using the jamal919/bandsos </span>
+<span class="sd">docker environment. You will need the environment variables listed in run.env file.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.1&#39;</span>
+
+<span class="kn">from</span> <span class="nn"><a href="bandsos/schism.html">bandsos.schism</a></span> <span class="kn">import</span> <span class="n">Grid</span><span class="p">,</span> <span class="n">Sflux</span><span class="p">,</span> <span class="n">Bctides</span><span class="p">,</span> <span class="n">Tidefacout</span>
+<span class="kn">from</span> <span class="nn"><a href="bandsos/webdata.html">bandsos.webdata</a></span> <span class="kn">import</span> <span class="n">GFS_0p25_1hr</span>
+<span class="kn">from</span> <span class="nn"><a href="bandsos/webdir.html">bandsos.webdir</a></span> <span class="kn">import</span> <span class="n">GithubDirectory</span>
+<span class="kn">from</span> <span class="nn"><a href="bandsos/gfs.html">bandsos.gfs</a></span> <span class="kn">import</span> <span class="n">create_gfs_data</span>
+<span class="kn">from</span> <span class="nn"><a href="bandsos/color.html">bandsos.color</a></span> <span class="kn">import</span> <span class="n">Colormap</span>
+<span class="kn">from</span> <span class="nn"><a href="bandsos/post.html">bandsos.post</a></span> <span class="kn">import</span> <span class="n">create_water_level_tiles</span><span class="p">,</span> <span class="n">create_water_level_stations</span>
+
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">mcolors</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1</span> <span class="kn">import</span> <span class="n">make_axes_locatable</span>
+
+<span class="kn">import</span> <span class="nn">cmocean.cm</span> <span class="k">as</span> <span class="nn">ccm</span>
+
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">f90nml</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">SECONDS2DAY</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">86400</span>
+
+<span class="k">def</span> <span class="nf">init_cycle</span><span class="p">(</span><span class="n">cycle</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_spinup</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">forecast_length</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cycle_step</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cycle_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">%H&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Extracts and return a dict of `start_date`, `end_date`, `forecast_length`, `cycle_step` for a given cycle name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">cycle_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">cycle</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">cycle_format</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="n">cycle</span><span class="p">,</span>
+            <span class="s1">&#39;cycle_date&#39;</span><span class="p">:</span><span class="n">cycle_date</span><span class="p">,</span>
+            <span class="s1">&#39;start_date&#39;</span><span class="p">:</span> <span class="n">cycle_date</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">model_spinup</span><span class="p">),</span>
+            <span class="s1">&#39;end_date&#39;</span><span class="p">:</span> <span class="n">cycle_date</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">forecast_length</span><span class="p">),</span>
+            <span class="s1">&#39;forecast_length&#39;</span><span class="p">:</span> <span class="n">forecast_length</span><span class="p">,</span>
+            <span class="s1">&#39;cycle_step&#39;</span><span class="p">:</span> <span class="n">cycle_step</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">create_gfs_sflux</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">n_buffer_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">outpath</span><span class="o">=</span><span class="s1">&#39;./&#39;</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s1">&#39;1H&#39;</span><span class="p">,</span> <span class="n">nstep</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">basedate</span><span class="o">=</span><span class="s1">&#39;1970-01-01&#39;</span><span class="p">):</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+    <span class="n">basedate</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">basedate</span><span class="p">)</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">end_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">sflux</span> <span class="o">=</span> <span class="n">Sflux</span><span class="p">(</span>
+        <span class="n">grid</span><span class="o">=</span><span class="n">Grid</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">),</span> 
+        <span class="n">basedate</span><span class="o">=</span><span class="n">basedate</span><span class="p">,</span> 
+        <span class="n">sflux_type</span><span class="o">=</span><span class="s1">&#39;air&#39;</span><span class="p">,</span> 
+        <span class="n">nstep</span><span class="o">=</span><span class="n">nstep</span><span class="p">,</span> 
+        <span class="n">path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outpath</span><span class="p">,</span> <span class="s1">&#39;sflux&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">timesteps</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end_time</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">timestep</span> <span class="ow">in</span> <span class="n">timesteps</span><span class="p">:</span>
+
+        <span class="n">flux</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;uwind&#39;</span><span class="p">:</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;u10&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">timestep</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">y</span><span class="p">),</span>
+                <span class="s1">&#39;vwind&#39;</span><span class="p">:</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;v10&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">timestep</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">y</span><span class="p">),</span>
+                <span class="s1">&#39;prmsl&#39;</span><span class="p">:</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;prmsl&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">timestep</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">y</span><span class="p">),</span>
+                <span class="s1">&#39;stmp&#39;</span><span class="p">:</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;stmp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">timestep</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">y</span><span class="p">),</span>
+                <span class="s1">&#39;spfh&#39;</span><span class="p">:</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;spfh&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">timestep</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+            <span class="p">}</span>
+
+        <span class="n">sflux</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="n">at</span><span class="o">=</span><span class="n">timestep</span><span class="p">,</span>
+            <span class="n">flux</span><span class="o">=</span><span class="n">flux</span>
+        <span class="p">)</span>
+
+    <span class="n">ds</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># Buffer steps</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_buffer_steps</span><span class="p">):</span>
+        <span class="n">sflux</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="n">at</span><span class="o">=</span><span class="n">timestep</span><span class="o">+</span><span class="n">step</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">flux</span><span class="o">=</span><span class="n">flux</span>
+        <span class="p">)</span>
+
+    <span class="n">sflux</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+    <span class="n">sflux</span><span class="o">.</span><span class="n">sfluxtxt</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">create_tidefacinput</span><span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">,</span> <span class="n">savedir</span><span class="o">=</span><span class="s1">&#39;./&#39;</span><span class="p">):</span>
+    <span class="n">model_start</span> <span class="o">=</span> <span class="n">start_date</span>
+    <span class="n">model_end</span> <span class="o">=</span> <span class="n">end_date</span>
+    <span class="n">rnday</span> <span class="o">=</span> <span class="p">(</span><span class="n">model_end</span> <span class="o">-</span> <span class="n">model_start</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">*</span><span class="n">SECONDS2DAY</span>
+    <span class="n">start_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">model_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y&#39;</span><span class="p">))</span>
+    <span class="n">start_month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">model_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%m&#39;</span><span class="p">))</span>
+    <span class="n">start_day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">model_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">))</span>
+    <span class="n">start_hour</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">model_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H&#39;</span><span class="p">))</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">savedir</span><span class="p">,</span> <span class="s1">&#39;tidefacinput&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">start_year</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">start_month</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">start_day</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">start_hour</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">rnday</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">update_bctides</span><span class="p">(</span><span class="n">tidefac</span><span class="p">,</span> <span class="n">bctides_template</span><span class="p">,</span> <span class="n">bctides_outfile</span><span class="o">=</span><span class="s1">&#39;bctides.in&#39;</span><span class="p">,</span> <span class="n">tidefac_out</span><span class="o">=</span><span class="s1">&#39;tide_fac.out&#39;</span><span class="p">,</span> <span class="n">cycledir</span><span class="o">=</span><span class="s1">&#39;./&#39;</span><span class="p">):</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="n">tidefac</span><span class="p">],</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cycledir</span><span class="p">)</span>
+    <span class="n">bctides</span> <span class="o">=</span> <span class="n">Bctides</span><span class="p">()</span>
+    <span class="n">bctides</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">bctides_template</span><span class="p">)</span>
+    <span class="n">tidefac</span> <span class="o">=</span> <span class="n">Tidefacout</span><span class="p">()</span>
+    <span class="n">tidefac</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycledir</span><span class="p">,</span> <span class="n">tidefac_out</span><span class="p">))</span>
+    <span class="n">bctides</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tidefac</span><span class="o">=</span><span class="n">tidefac</span><span class="p">)</span>
+    <span class="n">bctides</span><span class="o">.</span><span class="n">updatesa</span><span class="p">(</span><span class="n">tidefac</span><span class="o">=</span><span class="n">tidefac</span><span class="p">)</span>
+    <span class="n">bctides</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycledir</span><span class="p">,</span> <span class="n">bctides_outfile</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">create_climatic_discharge</span><span class="p">(</span><span class="n">discharge</span><span class="p">,</span> <span class="n">tidefacinput</span><span class="p">,</span> <span class="n">bnds</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;./&#39;</span><span class="p">):</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">discharge</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;Day&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tidefacinput</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">tm</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">start_year</span><span class="p">,</span> <span class="n">start_month</span><span class="p">,</span> <span class="n">start_day</span><span class="p">,</span> <span class="n">start_hour</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">tm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">rnday</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">tm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">rnday</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">rnday</span><span class="p">))</span>
+        <span class="n">fxday</span> <span class="o">=</span> <span class="n">rnday</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">starttime</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">start_year</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">start_month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">start_day</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">start_hour</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">:00:00&#39;</span><span class="p">)</span>
+    <span class="n">days</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">starttime</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="n">fxday</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;1D&#39;</span><span class="p">)</span>
+
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">days</span><span class="o">.</span><span class="n">dayofyear</span><span class="p">,</span> <span class="n">bnds</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span> <span class="c1"># - is inflow</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">flux</span><span class="o">.</span><span class="n">set_index</span><span class="p">((</span><span class="n">days</span><span class="o">-</span><span class="n">days</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
+    <span class="n">flux</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="s1">&#39;flux.th&#39;</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%.1f</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">create_param</span><span class="p">(</span><span class="n">tidefacinput</span><span class="p">,</span> <span class="n">param_template_file</span><span class="p">,</span> <span class="n">param_output_file</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tidefacinput</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">tm</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">start_year</span><span class="p">,</span> <span class="n">start_month</span><span class="p">,</span> <span class="n">start_day</span><span class="p">,</span> <span class="n">start_hour</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">tm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">rnday</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">tm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+    <span class="n">patch_nml</span> <span class="o">=</span> <span class="n">f90nml</span><span class="o">.</span><span class="n">Namelist</span><span class="p">({</span>
+        <span class="s1">&#39;CORE&#39;</span><span class="p">:{</span>
+            <span class="s1">&#39;rnday&#39;</span><span class="p">:</span><span class="nb">float</span><span class="p">(</span><span class="n">rnday</span><span class="p">)</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;OPT&#39;</span><span class="p">:{</span>
+            <span class="s1">&#39;start_year&#39;</span><span class="p">:</span><span class="nb">int</span><span class="p">(</span><span class="n">start_year</span><span class="p">),</span>
+            <span class="s1">&#39;start_month&#39;</span><span class="p">:</span><span class="nb">int</span><span class="p">(</span><span class="n">start_month</span><span class="p">),</span>
+            <span class="s1">&#39;start_day&#39;</span><span class="p">:</span><span class="nb">int</span><span class="p">(</span><span class="n">start_day</span><span class="p">),</span>
+            <span class="s1">&#39;start_hour&#39;</span><span class="p">:</span><span class="nb">float</span><span class="p">(</span><span class="n">start_hour</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">wave</span><span class="p">:</span>
+        <span class="n">patch_nml</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;CORE&#39;</span><span class="p">:{</span>
+                    <span class="s1">&#39;msc2&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+                    <span class="s1">&#39;mdc2&#39;</span><span class="p">:</span> <span class="mi">12</span>
+                <span class="p">},</span>
+                <span class="s1">&#39;OPT&#39;</span><span class="p">:{</span>
+                    <span class="s1">&#39;icou_elfe_wwm&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s1">&#39;nstep_wwm&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+                    <span class="s1">&#39;cur_wwm&#39;</span><span class="p">:</span><span class="mi">1</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="n">f90nml</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">param_template_file</span><span class="p">,</span> <span class="n">patch_nml</span><span class="p">,</span> <span class="n">param_output_file</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">create_wwminput</span><span class="p">(</span><span class="n">param_nml_file</span><span class="p">,</span> <span class="n">wwminput_template_file</span><span class="p">,</span> <span class="n">wwminput_output_file</span><span class="p">):</span>
+    <span class="n">param_nml</span> <span class="o">=</span> <span class="n">f90nml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">param_nml_file</span><span class="p">)</span>
+
+    <span class="n">rnday</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">param_nml</span><span class="p">[</span><span class="s1">&#39;CORE&#39;</span><span class="p">][</span><span class="s1">&#39;rnday&#39;</span><span class="p">])</span>
+
+    <span class="n">start_year</span> <span class="o">=</span> <span class="n">param_nml</span><span class="p">[</span><span class="s1">&#39;OPT&#39;</span><span class="p">][</span><span class="s1">&#39;start_year&#39;</span><span class="p">]</span>
+    <span class="n">start_month</span> <span class="o">=</span> <span class="n">param_nml</span><span class="p">[</span><span class="s1">&#39;OPT&#39;</span><span class="p">][</span><span class="s1">&#39;start_month&#39;</span><span class="p">]</span>
+    <span class="n">start_day</span> <span class="o">=</span> <span class="n">param_nml</span><span class="p">[</span><span class="s1">&#39;OPT&#39;</span><span class="p">][</span><span class="s1">&#39;start_day&#39;</span><span class="p">]</span>
+    <span class="n">start_hour</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">param_nml</span><span class="p">[</span><span class="s1">&#39;OPT&#39;</span><span class="p">][</span><span class="s1">&#39;start_hour&#39;</span><span class="p">])</span>
+    <span class="n">start_minute</span> <span class="o">=</span> <span class="n">start_hour</span><span class="o">%</span><span class="mi">1</span> <span class="o">*</span> <span class="mi">60</span>
+    <span class="n">start_hour</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">start_hour</span><span class="p">)</span>
+    <span class="n">start_second</span> <span class="o">=</span> <span class="n">start_minute</span><span class="o">%</span><span class="mi">1</span> <span class="o">*</span> <span class="mi">60</span>
+    <span class="n">start_minute</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">start_minute</span><span class="p">)</span>
+    <span class="n">start_second</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">start_second</span><span class="p">)</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">start_year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">start_month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">start_day</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">start_hour</span><span class="si">:</span><span class="s1">02.0f</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">start_minute</span><span class="si">:</span><span class="s1">02.0f</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">start_second</span><span class="si">:</span><span class="s1">02.0f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">end_time</span> <span class="o">=</span> <span class="n">start_time</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">rnday</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">)</span>
+
+    <span class="n">patch_nml</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;PROC&#39;</span><span class="p">:{</span>
+            <span class="s1">&#39;BEGTC&#39;</span><span class="p">:</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">.%H%M%S&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;DELTC&#39;</span><span class="p">:</span><span class="n">param_nml</span><span class="p">[</span><span class="s1">&#39;CORE&#39;</span><span class="p">][</span><span class="s1">&#39;dt&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">param_nml</span><span class="p">[</span><span class="s1">&#39;OPT&#39;</span><span class="p">][</span><span class="s1">&#39;nstep_wwm&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;UNITC&#39;</span><span class="p">:</span><span class="s1">&#39;SEC&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ENDTC&#39;</span><span class="p">:</span><span class="n">end_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">.%H%M%S&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;DMIN&#39;</span><span class="p">:</span><span class="n">param_nml</span><span class="p">[</span><span class="s1">&#39;OPT&#39;</span><span class="p">][</span><span class="s1">&#39;h0&#39;</span><span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;GRID&#39;</span><span class="p">:{</span>
+            <span class="s1">&#39;MSC&#39;</span><span class="p">:</span><span class="n">param_nml</span><span class="p">[</span><span class="s1">&#39;CORE&#39;</span><span class="p">][</span><span class="s1">&#39;msc2&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;MDC&#39;</span><span class="p">:</span><span class="n">param_nml</span><span class="p">[</span><span class="s1">&#39;CORE&#39;</span><span class="p">][</span><span class="s1">&#39;mdc2&#39;</span><span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;BOUC&#39;</span><span class="p">:{</span>
+            <span class="s1">&#39;BEGTC&#39;</span><span class="p">:</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">.%H%M%S&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;ENDTC&#39;</span><span class="p">:</span><span class="n">end_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">.%H%M%S&#39;</span><span class="p">)</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;HISTORY&#39;</span><span class="p">:{</span>
+            <span class="s1">&#39;BEGTC&#39;</span><span class="p">:</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">.%H%M%S&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;ENDTC&#39;</span><span class="p">:</span><span class="n">end_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">.%H%M%S&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;OUTSTYLE&#39;</span><span class="p">:</span><span class="s1">&#39;NO&#39;</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;STATION&#39;</span><span class="p">:{</span>
+            <span class="s1">&#39;BEGTC&#39;</span><span class="p">:</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">.%H%M%S&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;ENDTC&#39;</span><span class="p">:</span><span class="n">end_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">.%H%M%S&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;OUTSTYLE&#39;</span><span class="p">:</span><span class="s1">&#39;STE&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;DEFINETC&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;HOTFILE&#39;</span><span class="p">:{</span>
+            <span class="s1">&#39;BEGTC&#39;</span><span class="p">:</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">.%H%M%S&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;ENDTC&#39;</span><span class="p">:</span><span class="n">end_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">.%H%M%S&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">f90nml</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">wwminput_template_file</span><span class="p">,</span> <span class="n">patch_nml</span><span class="p">,</span> <span class="n">wwminput_output_file</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">template_script</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">cycledir</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;cycle&gt;&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">cycledir</span><span class="p">))</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycledir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">template</span><span class="p">)),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">model_generate</span><span class="p">(</span><span class="n">cycle</span><span class="p">,</span> <span class="n">fdir_paths</span><span class="p">,</span> <span class="n">forecast_config</span><span class="p">,</span> <span class="n">executables</span><span class="p">):</span>
+    <span class="n">cycle_config</span> <span class="o">=</span> <span class="n">init_cycle</span><span class="p">(</span><span class="n">cycle</span><span class="o">=</span><span class="n">cycle</span><span class="p">,</span> <span class="o">**</span><span class="n">forecast_config</span><span class="p">)</span>
+    <span class="n">cycle_dir</span> <span class="o">=</span> <span class="n">GithubDirectory</span><span class="p">(</span>
+        <span class="n">fdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;forecasts_dir&#39;</span><span class="p">],</span> <span class="n">cycle_config</span><span class="p">[</span><span class="s1">&#39;cycle&#39;</span><span class="p">]),</span> 
+        <span class="n">username</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;GH_USER&#39;</span><span class="p">],</span> 
+        <span class="n">access_token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;GH_TOKEN&#39;</span><span class="p">],</span> 
+        <span class="n">license</span><span class="o">=</span><span class="s1">&#39;mit&#39;</span><span class="p">)</span>
+
+    <span class="c1"># GFS data creation</span>
+    <span class="n">fname_gfs</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;gfs.nc&#39;</span><span class="p">)</span>
+    <span class="n">create_gfs_data</span><span class="p">(</span>
+        <span class="n">start_date</span><span class="o">=</span><span class="n">cycle_config</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">],</span> 
+        <span class="n">end_date</span><span class="o">=</span><span class="n">cycle_config</span><span class="p">[</span><span class="s1">&#39;end_date&#39;</span><span class="p">],</span> 
+        <span class="n">forecast_length</span><span class="o">=</span><span class="n">cycle_config</span><span class="p">[</span><span class="s1">&#39;forecast_length&#39;</span><span class="p">],</span> 
+        <span class="n">cycle_step</span><span class="o">=</span><span class="n">cycle_config</span><span class="p">[</span><span class="s1">&#39;cycle_step&#39;</span><span class="p">],</span> 
+        <span class="n">fdir</span><span class="o">=</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;gfs_dir&#39;</span><span class="p">],</span> 
+        <span class="n">fname_pattern</span><span class="o">=</span><span class="s1">&#39;gfs*.nc&#39;</span><span class="p">,</span> 
+        <span class="n">fname_out</span><span class="o">=</span><span class="n">fname_gfs</span><span class="p">)</span>
+    <span class="n">create_gfs_sflux</span><span class="p">(</span>
+        <span class="n">fname</span><span class="o">=</span><span class="n">fname_gfs</span><span class="p">,</span> 
+        <span class="n">n_buffer_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">outpath</span><span class="o">=</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> 
+        <span class="n">step</span><span class="o">=</span><span class="s1">&#39;1H&#39;</span><span class="p">,</span> 
+        <span class="n">nstep</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> 
+        <span class="n">basedate</span><span class="o">=</span><span class="s1">&#39;1970-01-01&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Model</span>
+    <span class="n">create_tidefacinput</span><span class="p">(</span>
+        <span class="n">start_date</span><span class="o">=</span><span class="n">cycle_config</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">],</span> 
+        <span class="n">end_date</span><span class="o">=</span><span class="n">cycle_config</span><span class="p">[</span><span class="s1">&#39;end_date&#39;</span><span class="p">],</span> 
+        <span class="n">savedir</span><span class="o">=</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">)</span>
+    <span class="n">update_bctides</span><span class="p">(</span>
+        <span class="n">tidefac</span><span class="o">=</span><span class="n">executables</span><span class="p">[</span><span class="s1">&#39;tidefac_exe&#39;</span><span class="p">],</span> 
+        <span class="n">bctides_template</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;config_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;bctides.in.3.template&#39;</span><span class="p">),</span> 
+        <span class="n">cycledir</span><span class="o">=</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">)</span>
+    <span class="n">create_climatic_discharge</span><span class="p">(</span>
+        <span class="n">discharge</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;discharge_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;climatic_discharge.csv&#39;</span><span class="p">),</span> 
+        <span class="n">tidefacinput</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;tidefacinput&#39;</span><span class="p">),</span> 
+        <span class="n">bnds</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Karnaphuli&#39;</span><span class="p">,</span> <span class="s1">&#39;Hooghly&#39;</span><span class="p">,</span> <span class="s1">&#39;Ganges&#39;</span><span class="p">,</span> <span class="s1">&#39;Brahmaputra&#39;</span><span class="p">],</span> 
+        <span class="n">outdir</span><span class="o">=</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">)</span> <span class="c1"># Meghna is flather</span>
+    <span class="n">create_param</span><span class="p">(</span>
+        <span class="n">tidefacinput</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;tidefacinput&#39;</span><span class="p">),</span> 
+        <span class="n">param_template_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;config_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;param.nml.template&#39;</span><span class="p">),</span> 
+        <span class="n">param_output_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;param.nml&#39;</span><span class="p">),</span>
+        <span class="n">wave</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">create_wwminput</span><span class="p">(</span>
+        <span class="n">param_nml_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;param.nml&#39;</span><span class="p">),</span>
+        <span class="n">wwminput_template_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;config_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;wwminput.nml.nobnd.template&#39;</span><span class="p">),</span>
+        <span class="n">wwminput_output_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;wwminput.nml&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;config_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;hgrid.gr3.3.template&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;hgrid.gr3&#39;</span><span class="p">)])</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;hgrid.gr3&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;hgrid.ll&#39;</span><span class="p">)])</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;hgrid.gr3&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;hgrid_WWM.gr3&#39;</span><span class="p">)])</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;config_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;vgrid.in.2D.template&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;vgrid.in&#39;</span><span class="p">)])</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;config_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;manning.gr3.3.template&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;manning.gr3&#39;</span><span class="p">)])</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;config_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;windrot_geo2proj.gr3.template&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;windrot_geo2proj.gr3&#39;</span><span class="p">)])</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;config_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;station.in.3.template&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;station.in&#39;</span><span class="p">)])</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;config_dir&#39;</span><span class="p">],</span> <span class="s1">&#39;wwmbnd.gr3.inactive&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;wwmbnd.gr3&#39;</span><span class="p">)])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;outputs&#39;</span><span class="p">)):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;outputs&#39;</span><span class="p">))</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span><span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># Root directory</span>
+    <span class="n">root_dir</span> <span class="o">=</span> <span class="s1">&#39;/mnt&#39;</span>
+
+    <span class="c1"># log file</span>
+    <span class="c1"># DEBUG, INFO, WARNING, ERROR, CRITICAL</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;bandsos.log&#39;</span><span class="p">),</span> 
+        <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> 
+        <span class="n">filemode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> 
+        <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Check environment variables GH_USER, GH_TOKEN, PRODUCER, EMAIL</span>
+    <span class="n">required_envs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GH_USER&#39;</span><span class="p">,</span> <span class="s1">&#39;GH_TOKEN&#39;</span><span class="p">,</span> <span class="s1">&#39;PRODUCER&#39;</span><span class="p">,</span> <span class="s1">&#39;EMAIL&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">env</span> <span class="ow">in</span> <span class="n">required_envs</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">env</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">env</span><span class="si">}</span><span class="s1"> is found in system environment&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">env</span><span class="si">}</span><span class="s1"> is not found inthe system environment. Have you passed .env file to docker?&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Git setups</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span><span class="s1">&#39;git&#39;</span><span class="p">,</span> <span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="s1">&#39;--global&#39;</span><span class="p">,</span> <span class="s1">&#39;init.defaultBranch&#39;</span><span class="p">,</span> <span class="s1">&#39;main&#39;</span><span class="p">])</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span><span class="s1">&#39;git&#39;</span><span class="p">,</span> <span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="s1">&#39;--global&#39;</span><span class="p">,</span> <span class="s1">&#39;--add&#39;</span><span class="p">,</span> <span class="s1">&#39;safe.directory&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Directory setup</span>
+    <span class="n">fdir_paths</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;config_dir&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;config&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;fluxes_dir&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;fluxes&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;gfs_dir&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;fluxes&#39;</span><span class="p">,</span> <span class="s1">&#39;gfs&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;hwrf_dir&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;fluxes&#39;</span><span class="p">,</span> <span class="s1">&#39;hwrf&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;jtwc_dir&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;fluxes&#39;</span><span class="p">,</span> <span class="s1">&#39;jtwc&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;discharge_dir&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;fluxes&#39;</span><span class="p">,</span> <span class="s1">&#39;discharge&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;forecasts_dir&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;forecasts&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;log_dir&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;logs&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;status_dir&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="n">forecast_config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;model_spinup&#39;</span><span class="p">:</span><span class="s1">&#39;2D&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;forecast_length&#39;</span><span class="p">:</span><span class="s1">&#39;5D&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cycle_step&#39;</span><span class="p">:</span><span class="s1">&#39;6H&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cycle_format&#39;</span><span class="p">:</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">%H&#39;</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Programs</span>
+    <span class="n">executables</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;tidefac_exe&#39;</span><span class="p">:</span><span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s1">&#39;tidefac&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;schism_WWM_exe&#39;</span><span class="p">:</span><span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s1">&#39;pschism_WWM_TVD-VL&#39;</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Initiating status file</span>
+    <span class="n">status_dir</span> <span class="o">=</span> <span class="n">GithubDirectory</span><span class="p">(</span>
+        <span class="n">fdir</span><span class="o">=</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;status_dir&#39;</span><span class="p">],</span> 
+        <span class="n">username</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;GH_USER&#39;</span><span class="p">],</span> 
+        <span class="n">access_token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;GH_TOKEN&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="n">status_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">status_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;status.json&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">status_file</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">status_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;producer&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PRODUCER&#39;</span><span class="p">]})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="s1">&#39;cycle&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;producer&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PRODUCER&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;status&#39;</span><span class="p">:</span><span class="s1">&#39;published&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;lastupdate&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;lastforecast&#39;</span><span class="p">:{</span>
+                <span class="s1">&#39;date&#39;</span><span class="p">:</span><span class="s1">&#39;2020-05-17&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="s1">&#39;00&#39;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">status_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="s1">&#39;: &#39;</span><span class="p">))</span>
+
+        <span class="n">status_dir</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fpaths</span><span class="o">=</span><span class="p">[</span><span class="n">status_file</span><span class="p">],</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;:tada: Creates status repository&#39;</span><span class="p">)</span>
+
+    <span class="c1"># data sources</span>
+    <span class="n">gfs</span> <span class="o">=</span> <span class="n">GFS_0p25_1hr</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;gfs_dir&#39;</span><span class="p">],</span> <span class="n">data_prefix</span><span class="o">=</span><span class="s1">&#39;gfs_&#39;</span><span class="p">)</span>
+    <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="mi">75</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+
+    <span class="c1"># Forecast loop</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Check if a new gfs forecast is available</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gfs_available</span> <span class="o">=</span> <span class="n">gfs</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Could not check GFS data... Going to try in 10 minutes.&#39;</span><span class="p">)</span>
+
+        <span class="n">cycle</span> <span class="o">=</span> <span class="n">gfs</span><span class="o">.</span><span class="n">last</span> <span class="c1"># yyyymmddhh format</span>
+
+        <span class="c1"># Check if last forecast is already done by checking if there is manifest file in the forecast directory</span>
+        <span class="n">cycle_dir</span> <span class="o">=</span> <span class="n">GithubDirectory</span><span class="p">(</span>
+            <span class="n">fdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;forecasts_dir&#39;</span><span class="p">],</span> <span class="n">cycle</span><span class="p">),</span> 
+            <span class="n">username</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;GH_USER&#39;</span><span class="p">],</span> 
+            <span class="n">access_token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;GH_TOKEN&#39;</span><span class="p">],</span> 
+            <span class="n">license</span><span class="o">=</span><span class="s1">&#39;mit&#39;</span><span class="p">)</span>
+
+        <span class="n">cycle_manifest_available</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;manifest.json&#39;</span><span class="p">))</span>
+        <span class="n">reforecast_needed</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">cycle_manifest_available</span>
+        <span class="k">if</span> <span class="n">cycle_manifest_available</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1"> already done.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1"> needs to be run.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Starting forecast or going to sleep based on availability condition</span>
+        <span class="k">if</span> <span class="n">gfs_available</span> <span class="ow">or</span> <span class="n">reforecast_needed</span><span class="p">:</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="n">cycle</span><span class="p">,</span>
+                    <span class="s1">&#39;status&#39;</span><span class="p">:</span><span class="s1">&#39;ongoing&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;lastupdate&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">status_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="s1">&#39;: &#39;</span><span class="p">))</span>
+
+            <span class="n">status_dir</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fpaths</span><span class="o">=</span><span class="p">[</span><span class="n">status_file</span><span class="p">],</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;:tada: </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1"> is ongoing&#39;</span><span class="p">)</span>
+            <span class="n">gfs</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No new cycle available... Going to check servers in 10 minutes.&#39;</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span> <span class="c1"># seconds</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Model generation</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">model_generate</span><span class="p">(</span><span class="n">cycle</span><span class="o">=</span><span class="n">cycle</span><span class="p">,</span> <span class="n">fdir_paths</span><span class="o">=</span><span class="n">fdir_paths</span><span class="p">,</span> <span class="n">forecast_config</span><span class="o">=</span><span class="n">forecast_config</span><span class="p">,</span> <span class="n">executables</span><span class="o">=</span><span class="n">executables</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;log_dir&#39;</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">.fatal&#39;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Model could not be generated for cycle </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">. Check </span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="n">cycle</span><span class="p">,</span>
+                    <span class="s1">&#39;status&#39;</span><span class="p">:</span><span class="s1">&#39;failed&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;lastupdate&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">status_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="s1">&#39;: &#39;</span><span class="p">))</span>
+
+            <span class="n">status_dir</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fpaths</span><span class="o">=</span><span class="p">[</span><span class="n">status_file</span><span class="p">],</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;:boom: Model generation fails for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="k">continue</span> <span class="c1"># restart the loop</span>
+
+        <span class="c1"># Model integration</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Starting model integration for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">ncpu</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="o">/</span><span class="mi">2</span>
+            <span class="n">model_exe</span> <span class="o">=</span> <span class="n">executables</span><span class="p">[</span><span class="s1">&#39;schism_WWM_exe&#39;</span><span class="p">]</span>
+            <span class="n">nscribe</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># scribed output</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span><span class="s1">&#39;mpirun&#39;</span><span class="p">,</span> <span class="s1">&#39;-np&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ncpu</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">model_exe</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">nscribe</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">],</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Finished model integration for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="n">cycle</span><span class="p">,</span>
+                    <span class="s1">&#39;status&#39;</span><span class="p">:</span><span class="s1">&#39;done&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;lastupdate&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">status_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="s1">&#39;: &#39;</span><span class="p">))</span>
+
+            <span class="n">status_dir</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fpaths</span><span class="o">=</span><span class="p">[</span><span class="n">status_file</span><span class="p">],</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;:tada: Model integration done for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir_paths</span><span class="p">[</span><span class="s1">&#39;log_dir&#39;</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">.fatal&#39;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Model could not be run for cycle </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">. Check </span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="n">cycle</span><span class="p">,</span>
+                    <span class="s1">&#39;status&#39;</span><span class="p">:</span><span class="s1">&#39;failed&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;lastupdate&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">status_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="s1">&#39;: &#39;</span><span class="p">))</span>
+
+            <span class="n">status_dir</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fpaths</span><span class="o">=</span><span class="p">[</span><span class="n">status_file</span><span class="p">],</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;:boom: Model integration fails for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Check if the results (in out2d_1.nc) is created properly</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Checking if output is geneared for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">out_nc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;outputs&#39;</span><span class="p">,</span> <span class="s1">&#39;out2d_1.nc&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">out_nc</span><span class="p">):</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="n">cycle</span><span class="p">,</span>
+                    <span class="s1">&#39;status&#39;</span><span class="p">:</span><span class="s1">&#39;done&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;lastupdate&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">status_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="s1">&#39;: &#39;</span><span class="p">))</span>
+
+            <span class="n">status_dir</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fpaths</span><span class="o">=</span><span class="p">[</span><span class="n">status_file</span><span class="p">],</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;:tada: Model integration done for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Output is generated for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Model result is not found for cycle </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">. Continuing forecast loop.&#39;</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="n">cycle</span><span class="p">,</span>
+                    <span class="s1">&#39;status&#39;</span><span class="p">:</span><span class="s1">&#39;failed&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;lastupdate&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">status_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="s1">&#39;: &#39;</span><span class="p">))</span>
+
+            <span class="n">status_dir</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fpaths</span><span class="o">=</span><span class="p">[</span><span class="n">status_file</span><span class="p">],</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;:boom: Model integration fails for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Post-processing and result upload</span>
+        <span class="c1">## Processing the tiles</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Creating output tiles for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+        <span class="n">values</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mf">5.1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span> <span class="c1"># the range of values we want for colorbar</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="n">Colormap</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">ccm</span><span class="o">.</span><span class="n">balance</span><span class="p">,</span> <span class="n">midpoint</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tiles_extent</span> <span class="o">=</span> <span class="p">[</span><span class="mi">86</span><span class="p">,</span> <span class="mi">93</span><span class="p">,</span> <span class="mf">20.5</span><span class="p">,</span> <span class="mi">24</span><span class="p">]</span>
+        <span class="n">tiles_resolution</span> <span class="o">=</span> <span class="mf">0.0025</span> <span class="c1"># 250m</span>
+        <span class="n">colorbar_ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mf">5.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">output_forecast_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;forecasts&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_forecast_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;forecasts&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;forecasts&#39;</span><span class="p">,</span> <span class="s1">&#39;elev&#39;</span><span class="p">))):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;forecasts&#39;</span><span class="p">,</span> <span class="s1">&#39;elev&#39;</span><span class="p">))</span>
+        <span class="n">out_tiles</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;forecasts&#39;</span><span class="p">,</span> <span class="s1">&#39;elev&#39;</span><span class="p">,</span> <span class="s1">&#39;tiles&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">out_tiles</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">out_tiles</span><span class="p">)</span>
+        <span class="n">tiles</span> <span class="o">=</span> <span class="n">create_water_level_tiles</span><span class="p">(</span>
+            <span class="n">out_nc</span><span class="o">=</span><span class="n">out_nc</span><span class="p">,</span> 
+            <span class="n">outdir</span><span class="o">=</span><span class="n">out_tiles</span><span class="p">,</span> 
+            <span class="n">colormap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span> 
+            <span class="n">extent</span><span class="o">=</span><span class="n">tiles_extent</span><span class="p">,</span>
+            <span class="n">resolution</span><span class="o">=</span><span class="n">tiles_resolution</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Output tiles are generated for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+
+        <span class="c1">## Creating colorbar</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Generating colorbar for output tiles for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">TwoSlopeNorm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="n">vcenter</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)),</span> <span class="n">c</span><span class="o">=</span><span class="n">values</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">ccm</span><span class="o">.</span><span class="n">balance</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+        <span class="n">divider</span> <span class="o">=</span> <span class="n">make_axes_locatable</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="n">cax</span> <span class="o">=</span> <span class="n">divider</span><span class="o">.</span><span class="n">append_axes</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s1">&#39;50%&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">)</span>
+        <span class="n">cax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">colorbar_ticks</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_tiles</span><span class="p">,</span> <span class="s1">&#39;colorbar.png&#39;</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Colorbar is generated for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1">## Creating stations</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Creating station output for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">out_station</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;forecasts&#39;</span><span class="p">,</span> <span class="s1">&#39;elev&#39;</span><span class="p">,</span> <span class="s1">&#39;stations&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">out_station</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">out_station</span><span class="p">)</span>
+        <span class="n">stations</span> <span class="o">=</span> <span class="n">create_water_level_stations</span><span class="p">(</span>
+            <span class="n">out_nc</span><span class="o">=</span><span class="n">out_nc</span><span class="p">,</span> 
+            <span class="n">outdir</span><span class="o">=</span><span class="n">out_station</span><span class="p">,</span> 
+            <span class="n">station_in</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;station.in&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Station output is created for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1">## Creating manifest</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Starting manifest creation for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">manifest</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;cycle&quot;</span><span class="p">:</span><span class="n">cycle</span><span class="p">,</span>
+            <span class="s2">&quot;date&quot;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">cycle</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">),</span>
+            <span class="s2">&quot;lastupdate&quot;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">),</span>
+            <span class="s2">&quot;producer&quot;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PRODUCER&#39;</span><span class="p">],</span>
+            <span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="n">__version__</span><span class="p">,</span>
+            <span class="s2">&quot;forecasts&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;elev&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Water level&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;src&quot;</span><span class="p">:</span><span class="s2">&quot;forecasts/elev&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;layers&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Map&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;tiles&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;timeseries&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="s2">&quot;colorbar&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="s2">&quot;colorbar_file&quot;</span><span class="p">:</span><span class="s2">&quot;colorbar.png&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;colorscale&quot;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="s2">&quot;timestamps&quot;</span><span class="p">:</span><span class="n">tiles</span>
+                        <span class="p">},</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Water level&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;stations&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;stations&quot;</span><span class="p">:</span><span class="n">stations</span>
+                        <span class="p">}</span>
+                    <span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="n">output_manifest_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cycle_dir</span><span class="o">.</span><span class="n">fdir</span><span class="p">,</span> <span class="s1">&#39;manifest.json&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_manifest_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="s1">&#39;: &#39;</span><span class="p">))</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Manifest is created for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Uploading the forecast</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Publishing the results for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cycle_dir</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="n">fpaths</span><span class="o">=</span><span class="p">[</span><span class="n">output_forecast_dir</span><span class="p">,</span> <span class="n">output_manifest_file</span><span class="p">],</span> 
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;:rocket: Forecast published for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="n">cycle</span><span class="p">,</span>
+                    <span class="s1">&#39;status&#39;</span><span class="p">:</span><span class="s1">&#39;published&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;lastforecast&#39;</span><span class="p">:{</span>
+                        <span class="s1">&#39;date&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">cycle</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">),</span>
+                        <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">cycle</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H&#39;</span><span class="p">)</span>
+                    <span class="p">},</span>
+                    <span class="s1">&#39;lastupdate&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">status_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="s1">&#39;: &#39;</span><span class="p">))</span>
+
+            <span class="n">status_dir</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fpaths</span><span class="o">=</span><span class="p">[</span><span class="n">status_file</span><span class="p">],</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;:rocket: Forecast published for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Problem with publishing for cycle </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">. Continuing forecast loop.&#39;</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;cycle&#39;</span><span class="p">:</span><span class="n">cycle</span><span class="p">,</span>
+                    <span class="s1">&#39;status&#39;</span><span class="p">:</span><span class="s1">&#39;failed&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;lastupdate&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;now&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">status_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="s1">&#39;: &#39;</span><span class="p">))</span>
+
+            <span class="n">status_dir</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fpaths</span><span class="o">=</span><span class="p">[</span><span class="n">status_file</span><span class="p">],</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;:boom: Problem with publishing for </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># forecast loop continues from the top again</span>
+</code></pre>
+</div>
 </div>
 
                         <input id="mod-bandsos-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
                         <label class="view-source-button" for="mod-bandsos-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">1</span></a><span class="ch">#!/usr/bin/env python</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">2</span></a><span class="c1"># -*- coding: utf-8 -*-</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">3</span></a>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">4</span></a><span class="sd">&quot;&quot;&quot;BandSOS system package&quot;&quot;&quot;</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">6</span></a><span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.4&quot;</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="ch">#!/usr/bin/env python</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="c1"># -*- coding: utf-8 -*-</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="sd">.. danger::</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="sd">    This toolbox is still in its major version 0. The interface is expected to change during its development, caution is</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="sd">    adviced.</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="sd">`bandsos` is a python package developed under the framework of BandSOS project. `bandsos` toolbox provides necessary </span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">and functions to deploy a coastal flood forecasting system. The toolbox is currently published under GPL v3 license.</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">.. warning::</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    Please direct your advice, contribution, bug reports to the [github repository](https://github.com/jamal919/bandsos-platform)</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">.. include:: ../docs/extended/introduction.md</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">.. include:: ../docs/extended/installation.md</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">.. include:: ../docs/extended/schism.md</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">.. include:: ../docs/extended/running.md</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">.. include:: ../docs/extended/publish.md</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">.. include:: ../docs/extended/references.md</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd"># Example scripts</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">## Full forecast script</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">Below is an example of a full forecast script - source code available in github repository. See [How to run](#how-to-run) </span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">section to see how you can run the following scripts.</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">```python</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">.. include:: ../examples/run_docker.py</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="sd">```</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.4&quot;</span>
 </span></pre></div>
 
 

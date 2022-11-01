@@ -52,12 +52,14 @@ First lets install docker software itself in your platform of choice - [Windows]
 
 ### Linux
 - Install docker normally from https://docs.docker.com/engine/install/
-- Activate `sudo systemctl start docker`
-- Enable for load on startup `sudo systemctl enable docker`
-- Add `docker` group: `sudo groupadd docker`
-- Add the current user to the `docker` group : `sudo usermod -aG docker $USER`
+- Activate ```sudo systemctl start docker```
+- Enable for load on startup ```sudo systemctl enable docker```
+- Add ```docker``` group: ```sudo groupadd docker```
+- Add the current user to the ```docker``` group : ```sudo usermod -aG docker $USER```
 
 ## Run folder structure
+The run the BandSOS system, the following folder structure is needed.
+
 ```
 - ROOTDIR
     |- config
@@ -67,12 +69,27 @@ First lets install docker software itself in your platform of choice - [Windows]
         |- jtwc
         |- discharge
     |- forecasts
-    |- scripts
 ```
+
+Here the intended use of the folders are following - 
+
+- ```config```: model configuration files
+- ```fluxes```: root folder for flux directory, which contains ```gfs```, ```hwrf```, ```jtwc```, ```discharge``` folders
+    - ```gfs```: 0.25 degree globa GFS forecast for the target region
+    - ```hwrf```: for storing HWRF forecasts
+    - ```jtwc```: for storing JTWC forecasts
+    - ```discharge```: contains climatic discharge for river open boundaries
+- ```forecasts```: folder containing each forecast, for data saving the script might be set to delete forecast once published
+
 ## How to run
-- bandsos.py
-- bandsos.env
+To run the bandsos platform, with online publishing you will need the following two files - 
+- ```run_bandsos.py``` : Main run script that constains the forecast cycle
+- ```bandsos.env``` : The environment file which contains the environment variable to be used with Github pages. !!! Important
+    to remember that this file should only be used in production, not for personal cases !!!
+
+To run the bandsos in a automated forecasting, run the following command after ```cd``` to the directory where ```config```,
+```fluxes```, ```forecast``` folder is located.
 
 ```bash
-docker run --rm --env-file=bandsos.env -v `pwd`/config:/bandsos/config -v `pwd`/fluxes:/bandsos/fluxes
+docker run --rm --restart=always --env-file=bandsos.env -v `pwd`:mnt jamal919/bandsos python run_bandsos.py
 ```

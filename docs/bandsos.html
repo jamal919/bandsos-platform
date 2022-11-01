@@ -205,6 +205,8 @@ computing clusters very quickly.</p>
 
 <h2 id="run-folder-structure">Run folder structure</h2>
 
+<p>The run the BandSOS system, the following folder structure is needed.</p>
+
 <pre><code>- ROOTDIR
     |- config
     |- fluxes
@@ -213,18 +215,37 @@ computing clusters very quickly.</p>
         |- jtwc
         |- discharge
     |- forecasts
-    |- scripts
 </code></pre>
+
+<p>Here the intended use of the folders are following - </p>
+
+<ul>
+<li><code>config</code>: model configuration files</li>
+<li><code>fluxes</code>: root folder for flux directory, which contains <code>gfs</code>, <code>hwrf</code>, <code>jtwc</code>, <code>discharge</code> folders
+<ul>
+<li><code>gfs</code>: 0.25 degree globa GFS forecast for the target region</li>
+<li><code>hwrf</code>: for storing HWRF forecasts</li>
+<li><code>jtwc</code>: for storing JTWC forecasts</li>
+<li><code>discharge</code>: contains climatic discharge for river open boundaries</li>
+</ul></li>
+<li><code>forecasts</code>: folder containing each forecast, for data saving the script might be set to delete forecast once published</li>
+</ul>
 
 <h2 id="how-to-run">How to run</h2>
 
+<p>To run the bandsos platform, with online publishing you will need the following two files - </p>
+
 <ul>
-<li>bandsos.py</li>
-<li>bandsos.env</li>
+<li><code>run_bandsos.py</code> : Main run script that constains the forecast cycle</li>
+<li><code>bandsos.env</code> : The environment file which contains the environment variable to be used with Github pages. !!! Important
+to remember that this file should only be used in production, not for personal cases !!!</li>
 </ul>
 
+<p>To run the bandsos in a automated forecasting, run the following command after <code>cd</code> to the directory where <code>config</code>,
+<code>fluxes</code>, <code>forecast</code> folder is located.</p>
+
 <div class="pdoc-code codehilite">
-<pre><span></span><code>docker run --rm --env-file<span class="o">=</span>bandsos.env -v <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/config:/bandsos/config -v <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/fluxes:/bandsos/fluxes
+<pre><span></span><code>docker run --rm --restart<span class="o">=</span>always --env-file<span class="o">=</span>bandsos.env -v <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>:mnt jamal919/bandsos python run_bandsos.py
 </code></pre>
 </div>
 

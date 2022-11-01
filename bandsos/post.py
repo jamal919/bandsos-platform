@@ -32,7 +32,6 @@ def create_water_level_tiles(out_nc, outdir, colormap, extent=[86, 93, 20.5, 24]
 
     for dd in dates:
         dname = pd.to_datetime(dd).strftime('%Y%m%d%H')
-        print(f'Processing {dname}')
         
         ds_day = ds['elevation'].sel(time=dd)
         interpolator = mtri.LinearTriInterpolator(triang, ds_day)

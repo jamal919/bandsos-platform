@@ -153,13 +153,13 @@ class GFS_0p25_1hr:
 
     @staticmethod
     def save_data(ds, fname, extent, retries=3):
+        logging.info(f'Saving {fname} using extent {extent}.')
         success = False
         retry = 0
 
         while not success:
             if retry < retries :
                 try:
-                    logging.info(f'Saving {fname} using extent {extent}.')
                     lon_select = ds['lon'].where(np.logical_and(ds.lon>=extent[0], ds.lon<=extent[1])).dropna(dim='lon')
                     lat_select = ds['lat'].where(np.logical_and(ds.lat>=extent[2], ds.lat<=extent[3])).dropna(dim='lat')
                     

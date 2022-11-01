@@ -28,15 +28,34 @@ The system-wide installation is tested while developing the [docker container](#
 `Dockerfile` to see which packages were installed in a Ubuntu 22.04 LTS system.
 
 ## Conda/Anaconda installation
-### Windows/Mac
-### Linux
-- Install docker normally from https://docs.docker.com/engine/install/
-- Activate sudo systemctl start docker
-- Enable for load on startup sudo systemctl enable docker
-- sudo groupadd docker
-- sudo usermod -aG docker $USER
+Conda is a python environment management system, which can install not only python-only programs (e.g., environments created
+with venv) but also supplementary/required binary programs.
+
+A brief installation procedure can be found here - https://docs.anaconda.com/anaconda/install/index.html.
 
 ## Docker container
+Docker is a containerization technique to isolate the necessary dependency-components for running a software into an isolated
+environment. Docker has the added benefit the ability to run in windows, linux, mac, or other ported platforms typically
+without any change in the containarized system. It also allows easy deployment into cloud computing systems, or large
+computing clusters very quickly.
+
+Installation of the system using docker goes in two step - 
+1. Installation of the docker software itself.
+2. Installation of the bandsos platform, using `docker pull` command
+
+First lets install docker software itself in your platform of choice - [Windows](#windows), 
+### Windows
+- Activate container hypervisor feature in BIOS for best performance.
+- Activate `Subsystem for Linux` in Windows feature.
+- Install `docker desktop` using the executable from https://docs.docker.com/engine/install/
+- Note: You might need to update the `linux-kernel-package`, update if promted.
+
+### Linux
+- Install docker normally from https://docs.docker.com/engine/install/
+- Activate `sudo systemctl start docker`
+- Enable for load on startup `sudo systemctl enable docker`
+- Add `docker` group: `sudo groupadd docker`
+- Add the current user to the `docker` group : `sudo usermod -aG docker $USER`
 
 ## Run folder structure
 ```

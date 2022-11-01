@@ -16,6 +16,7 @@ from urllib.error import HTTPError
 import warnings
 import typing
 from ghapi.all import GhApi
+import logging
 
 class GithubDirectory:
     def __init__(self, fdir:typing.Union[str, bytes, os.PathLike], username:str, access_token:str, license='mit'):
@@ -39,7 +40,7 @@ class GithubDirectory:
         self.ghapi = GhApi(owner=self.username, repo=self.dirname, token=self.access_token)
         try:
             repo = self.ghapi.repos.get()
-            print(f'Found {self.username}/{self.dirname} online!')
+            logging.info(f'Found {self.username}/{self.dirname} online!')
             self.online = True
         except HTTPError as e:
             # 404 not found
@@ -54,7 +55,7 @@ class GithubDirectory:
         if not self.online:
             try:
                 repo = self.ghapi.repos.create_for_authenticated_user(name=self.dirname, license_template=self.license)
-                print(f'Created github directory {self.username}/{self.dirname}')
+                logging.info(f'Created github directory {self.username}/{self.dirname}')
             except HTTPError as e:
                 # 201 Created
                 # 304 Not modified
@@ -73,7 +74,7 @@ class GithubDirectory:
         try:
             check_call([self.git, 'init'], cwd=self.fdir)
         except Exception as e:
-            print(e)
+            logging.error(e)
 
         # Check if online branch exists, if exists pull, else create a dummy readme, and push to start the branch
         try:
@@ -106,13 +107,19 @@ class GithubDirectory:
         try:
             page = self.ghapi.repos.get_pages()
             self.page_activated = True
-            print(f'Github pages already published at {page["html_url"]}')
+            logging.info(f'Github pages already published at {page["html_url"]}')
         except:
             # 404 Not found
             page = self.ghapi.repos.create_pages_site(source={'branch':'main'})
-            print(f'Github page is now published at {page["html_url"]}')
+            logging.info(f'Github page is now published at {page["html_url"]}')
+        
+        # Then try to enforce https
+        try:
             self.ghapi.repos.update_information_about_pages_site(https_enforced=True)
-            print(f'Github pages https_enforced is now set to True')
+        except Exception as e:
+            logging.info(f'Github pages https_enforced failed with exception {e}')
+        else:
+            logging.info(f'Github pages https_enforced is now set to True')
 
 
     @property

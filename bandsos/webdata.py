@@ -186,6 +186,7 @@ class GFS_0p25_1hr:
 
                     # Check if time is parsed correctly as np.datetime64, if not throws an exception
                     with xr.open_dataset(fname) as ds:
+                        logging.info(f'Testing time variable for integrity')
                         test_time = isinstance(ds['time'].data[0], np.datetime64)
 
                     assert test_time

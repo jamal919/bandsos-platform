@@ -9,13 +9,15 @@ from glob import glob
 import os
 import requests
 import re
+import logging
 
 class GFS_0p25_1hr:
-    def __init__(self, data_dir='./gfs', data_prefix='gfs_', url='http://nomads.ncep.noaa.gov:80/dods/gfs_0p25_1hr'):
+    def __init__(self, data_dir='./gfs', data_prefix='gfs_', url='http://nomads.ncep.noaa.gov:80/dods/gfs_0p25_1hr', retries=3):
         '''
         Checking and downloading new data from web for gfs dataset.
         '''
         self.url = url
+        self.retries = retries
         self.data_dir = data_dir
         self.data_prefix = data_prefix
         self.available = {}
@@ -123,33 +125,34 @@ class GFS_0p25_1hr:
             self.save_data(ds=ds, fname=fname, extent=extent)
 
     @staticmethod
-    def get_data_handle(dataurl):
-        tick = pd.to_datetime('now')
-        print(f'{dataurl}: ', end='', flush=True)
+    def get_data_handle(dataurl, retries=3):
+        logging.info(f'Now downloading {dataurl}')
         success = False
-        attempt = 1
         
-        while not success:
+        for retry in range(retries):
             try:
-                print(f'{attempt}...', end='', flush=True)
+                logging.info(f'Downloading {dataurl} - attempt {retry + 1}')
                 with warnings.catch_warnings():
                     warnings.simplefilter('ignore')
                     ds = xr.open_dataset(dataurl)
             except:
-                    attempt += 1
+                logging.info(f'Downloading {dataurl} - attempt {retry + 1} failed!')
             else:
                 success = True
-                print(f'connected...', end='', flush=True)
+                logging.info(f'Downloading {dataurl} - connected!')
                 return(ds)
 
-    @staticmethod
-    def save_data(ds, fname, extent):
-        success = False
-        attempt = 1
+        if success is False:
+            logging.error(f'Fatal error in downloading after {retry + 1} retries. Will exit the program.')
+            raise Exception(f'Could not connect to the {dataurl}')
 
-        while not success:
+    @staticmethod
+    def save_data(ds, fname, extent, retries=3):
+        success = False
+
+        for retry in range(retries):
             try:
-                print(f'{attempt}...', end='', flush=True)
+                logging.info(f'Saving {fname} using extent {extent}.')
                 lon_select = ds['lon'].where(np.logical_and(ds.lon>=extent[0], ds.lon<=extent[1])).dropna(dim='lon')
                 lat_select = ds['lat'].where(np.logical_and(ds.lat>=extent[2], ds.lat<=extent[3])).dropna(dim='lat')
                 
@@ -174,8 +177,11 @@ class GFS_0p25_1hr:
                 ds_out.close()
                 ds.close()
             except Exception as e:
-                print("The exception raised is: ", e)
-                attempt += 1
+                logging.info(f"An exception during saving (retry {retry + 1}): ", e)
             else:
                 success = True
-                print(f'done.', flush=True)
+                logging.info(f'Data saving {fname} done')
+
+        if success is False:
+            logging.error(f'Fatal error in saving. Will exit the program.')
+            raise Exception(f'Could not save to the {fname}.')

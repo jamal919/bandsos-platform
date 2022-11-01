@@ -128,19 +128,24 @@ class GFS_0p25_1hr:
     def get_data_handle(dataurl, retries=3):
         logging.info(f'Now downloading {dataurl}')
         success = False
+        retry = 0
         
-        for retry in range(retries):
-            try:
-                logging.info(f'Downloading {dataurl} - attempt {retry + 1}')
-                with warnings.catch_warnings():
-                    warnings.simplefilter('ignore')
-                    ds = xr.open_dataset(dataurl)
-            except:
-                logging.info(f'Downloading {dataurl} - attempt {retry + 1} failed!')
+        while not success:
+            if retry < retries:
+                try:
+                    logging.info(f'Downloading {dataurl} - attempt {retry + 1}')
+                    with warnings.catch_warnings():
+                        warnings.simplefilter('ignore')
+                        ds = xr.open_dataset(dataurl)
+                except:
+                    logging.info(f'Downloading {dataurl} - attempt {retry + 1} failed!')
+                    retry += 0
+                else:
+                    success = True
+                    logging.info(f'Downloading {dataurl} - connected in {retry + 1} try(ies)!')
+                    return(ds)
             else:
-                success = True
-                logging.info(f'Downloading {dataurl} - connected!')
-                return(ds)
+                logging.error(f'Exceeded retry count {retries}')
 
         if success is False:
             logging.error(f'Fatal error in downloading after {retry + 1} retries. Will exit the program.')
@@ -149,38 +154,44 @@ class GFS_0p25_1hr:
     @staticmethod
     def save_data(ds, fname, extent, retries=3):
         success = False
+        retry = 0
 
-        for retry in range(retries):
-            try:
-                logging.info(f'Saving {fname} using extent {extent}.')
-                lon_select = ds['lon'].where(np.logical_and(ds.lon>=extent[0], ds.lon<=extent[1])).dropna(dim='lon')
-                lat_select = ds['lat'].where(np.logical_and(ds.lat>=extent[2], ds.lat<=extent[3])).dropna(dim='lat')
-                
-                # To suppress warning related to 1-1-1 in time
-                ds_out = xr.Dataset(
-                    {
-                        'prmsl':ds['prmslmsl'].sel(lat=lat_select, lon=lon_select),
-                        'u10':ds['ugrd10m'].sel(lat=lat_select, lon=lon_select),
-                        'v10':ds['vgrd10m'].sel(lat=lat_select, lon=lon_select),
-                        'stmp':ds['tmp2m'].sel(lat=lat_select, lon=lon_select),
-                        'spfh':ds['rh2m'].sel(lat=lat_select, lon=lon_select),
-                        'dlwrf':ds['dlwrfsfc'].sel(lat=lat_select, lon=lon_select),
-                        'dswrf':ds['dswrfsfc'].sel(lat=lat_select, lon=lon_select),
-                        'prate':ds['pratesfc'].sel(lat=lat_select, lon=lon_select),
-                    }
-                )
+        while not success:
+            if retry < retries :
+                try:
+                    logging.info(f'Saving {fname} using extent {extent}.')
+                    lon_select = ds['lon'].where(np.logical_and(ds.lon>=extent[0], ds.lon<=extent[1])).dropna(dim='lon')
+                    lat_select = ds['lat'].where(np.logical_and(ds.lat>=extent[2], ds.lat<=extent[3])).dropna(dim='lat')
+                    
+                    # To suppress warning related to 1-1-1 in time
+                    ds_out = xr.Dataset(
+                        {
+                            'prmsl':ds['prmslmsl'].sel(lat=lat_select, lon=lon_select),
+                            'u10':ds['ugrd10m'].sel(lat=lat_select, lon=lon_select),
+                            'v10':ds['vgrd10m'].sel(lat=lat_select, lon=lon_select),
+                            'stmp':ds['tmp2m'].sel(lat=lat_select, lon=lon_select),
+                            'spfh':ds['rh2m'].sel(lat=lat_select, lon=lon_select),
+                            'dlwrf':ds['dlwrfsfc'].sel(lat=lat_select, lon=lon_select),
+                            'dswrf':ds['dswrfsfc'].sel(lat=lat_select, lon=lon_select),
+                            'prate':ds['pratesfc'].sel(lat=lat_select, lon=lon_select),
+                        }
+                    )
 
-                with warnings.catch_warnings():
-                    warnings.simplefilter('ignore')
-                    ds_out.to_netcdf(fname)
+                    with warnings.catch_warnings():
+                        warnings.simplefilter('ignore')
+                        ds_out.to_netcdf(fname)
 
-                ds_out.close()
-                ds.close()
-            except Exception as e:
-                logging.info(f"An exception during saving (retry {retry + 1}): ", e)
+                    ds_out.close()
+                    ds.close()
+                except Exception as e:
+                    logging.info(f"An exception during saving (retry {retry + 1}): ", e)
+                    retry += 1
+                else:
+                    success = True
+                    logging.info(f'Data saving {fname} done in {retry + 1} try(ies)')
             else:
-                success = True
-                logging.info(f'Data saving {fname} done')
+                logging.error(f'Exceeded retry count {retries}')
+                break
 
         if success is False:
             logging.error(f'Fatal error in saving. Will exit the program.')

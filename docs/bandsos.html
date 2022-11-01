@@ -163,19 +163,45 @@ replaced with your needed package name).</p>
 
 <h2 id="condaanaconda-installation">Conda/Anaconda installation</h2>
 
-<h3 id="windowsmac">Windows/Mac</h3>
+<p>Conda is a python environment management system, which can install not only python-only programs (e.g., environments created
+with venv) but also supplementary/required binary programs.</p>
+
+<p>A brief installation procedure can be found here - <a href="https://docs.anaconda.com/anaconda/install/index.html">https://docs.anaconda.com/anaconda/install/index.html</a>.</p>
+
+<h2 id="docker-container">Docker container</h2>
+
+<p>Docker is a containerization technique to isolate the necessary dependency-components for running a software into an isolated
+environment. Docker has the added benefit the ability to run in windows, linux, mac, or other ported platforms typically
+without any change in the containarized system. It also allows easy deployment into cloud computing systems, or large
+computing clusters very quickly.</p>
+
+<p>Installation of the system using docker goes in two step - </p>
+
+<ol>
+<li>Installation of the docker software itself.</li>
+<li>Installation of the bandsos platform, using <code>docker pull</code> command</li>
+</ol>
+
+<p>First lets install docker software itself in your platform of choice - <a href="#windows">Windows</a>, </p>
+
+<h3 id="windows">Windows</h3>
+
+<ul>
+<li>Activate container hypervisor feature in BIOS for best performance.</li>
+<li>Activate <code>Subsystem for Linux</code> in Windows feature.</li>
+<li>Install <code>docker desktop</code> using the executable from <a href="https://docs.docker.com/engine/install/">https://docs.docker.com/engine/install/</a></li>
+<li>Note: You might need to update the <code>linux-kernel-package</code>, update if promted.</li>
+</ul>
 
 <h3 id="linux">Linux</h3>
 
 <ul>
 <li>Install docker normally from <a href="https://docs.docker.com/engine/install/">https://docs.docker.com/engine/install/</a></li>
-<li>Activate sudo systemctl start docker</li>
-<li>Enable for load on startup sudo systemctl enable docker</li>
-<li>sudo groupadd docker</li>
-<li>sudo usermod -aG docker $USER</li>
+<li>Activate <code>sudo systemctl start docker</code></li>
+<li>Enable for load on startup <code>sudo systemctl enable docker</code></li>
+<li>Add <code>docker</code> group: <code>sudo groupadd docker</code></li>
+<li>Add the current user to the <code>docker</code> group : <code>sudo usermod -aG docker $USER</code></li>
 </ul>
-
-<h2 id="docker-container">Docker container</h2>
 
 <h2 id="run-folder-structure">Run folder structure</h2>
 

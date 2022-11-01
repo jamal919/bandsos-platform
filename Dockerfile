@@ -12,7 +12,7 @@ RUN apt-get update\
 # create pschism_TVD-VL and pschism_WWM_TVD-VL executables
 RUN git clone https://github.com/schism-dev/schism \
     && cd /schism \
-    && git checkout master \
+    && git checkout 9cdc9bb \
     && mkdir build && cd build \
     && cmake ../src -DTVD_LIM=VL -DCMAKE_Fortran_FLAGS_RELEASE="-O2 -fuse-ld=gold -ffree-line-length-none -fallow-argument-mismatch" \
     && make \

@@ -12,7 +12,7 @@ import json
 import os
 import shutil
 
-def create_water_level_tiles(out_nc, outdir, colormap, extent=[86, 93, 20.5, 24], resolution=0.0025):
+def create_water_level_tiles(out_nc, outdir, colormap, extent=[86, 93, 20.5, 24], resolution=0.0025, drop_n_times=0):
     ds = xr.open_dataset(out_nc)
     colormap.to_colorfile(os.path.join(outdir, 'colorfile'))
 
@@ -28,9 +28,10 @@ def create_water_level_tiles(out_nc, outdir, colormap, extent=[86, 93, 20.5, 24]
     triang = mtri.Triangulation(nodex, nodey, elems)
     depth_interpolator = mtri.LinearTriInterpolator(triang, depth)
     depth_interpolated = depth_interpolator(X, Y)
-    dates = pd.to_datetime(ds['time'][pd.to_datetime(ds['time']).hour % 3 == 0])
+    ds_dates = pd.to_datetime(ds['time'])[drop_n_times:]
+    selected_dates = ds_dates[ds_dates.hour % 3 == 0]
 
-    for dd in dates:
+    for dd in selected_dates:
         dname = pd.to_datetime(dd).strftime('%Y%m%d%H')
         
         ds_day = ds['elevation'].sel(time=dd)
@@ -63,8 +64,10 @@ def create_water_level_tiles(out_nc, outdir, colormap, extent=[86, 93, 20.5, 24]
             ])
 
 # Station ouputs
-def create_water_level_stations(out_nc, outdir, station_in):
-    ds = xr.open_dataset(out_nc)
+def create_water_level_stations(out_nc, outdir, station_in, drop_n_times=0):
+    ds_orig = xr.open_dataset(out_nc)
+    selected_times = pd.to_datetime(ds_orig['time'])[drop_n_times:]
+    ds = ds_orig.sel(time=selected_times)
 
     nodex = ds['SCHISM_hgrid_node_x']
     nodey = ds['SCHISM_hgrid_node_y']

@@ -55,12 +55,12 @@ def create_water_level_tiles(out_nc, outdir, colormap, extent=[86, 93, 20.5, 24]
         os.remove(os.path.join(outdir, f'{dname}.tif'))
         os.remove(os.path.join(outdir, f'{dname}_color.tif'))
 
-    fnames = [pd.to_datetime(dd).strftime('%Y%m%d%H') for dd in dates]
+    fnames = [pd.to_datetime(dd).strftime('%Y%m%d%H') for dd in selected_dates]
     return([
             {
                 'time':time.strftime('%Y-%m-%d %H:%M:%S'), 
                 'folder':fname
-            } for time, fname in zip(dates, fnames) 
+            } for time, fname in zip(selected_dates, fnames) 
             ])
 
 # Station ouputs

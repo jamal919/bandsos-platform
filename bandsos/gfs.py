@@ -168,23 +168,18 @@ def combine_gfs_cycles(cycles: pd.DataFrame, fname: str):
     logging.info('In combine_gfs_cycles()')
     temp_name = 'comgfs'
     
-    if sys.platform == 'win32':
-        # windows has permission error problem
-        temp_dir = './tempdir_gfs'
-        try:
-            os.mkdir(temp_dir)
-        except FileExistsError:
-            pass
+    temp_dir = './tempdir_gfs'
+    try:
+        os.mkdir(temp_dir)
+    except FileExistsError:
+        pass
 
-        try:
-            _combine_gfs_cycles_temp(cycles=cycles, fname=fname, temp_dir=temp_dir, temp_name=temp_name)
-        except Exception as e:
-            raise e
-        finally:
-            shutil.rmtree(temp_dir)
-    else:
-        with tempfile.TemporaryDirectory(prefix='gfs', ) as temp_dir:
-            _combine_gfs_cycles_temp(cycles=cycles, fname=fname, temp_dir=temp_dir, temp_name=temp_name)
+    try:
+        _combine_gfs_cycles_temp(cycles=cycles, fname=fname, temp_dir=temp_dir, temp_name=temp_name)
+    except Exception as e:
+        raise e
+    finally:
+        shutil.rmtree(temp_dir)
 
 def create_gfs_data(
         start_date: pd.Timestamp, 

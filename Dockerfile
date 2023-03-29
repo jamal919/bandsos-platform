@@ -1,12 +1,12 @@
 FROM ubuntu:22.04
 
 # timezone fixing, does not impact the functionalities of the docker
-ENV TZ=Europe/Paris
+ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 
 # basic packages
 RUN apt-get update\
-    && apt-get install -y libnetcdf-dev libnetcdff-dev mpich git cmake python-is-python3 \
+    && apt-get install -y libnetcdf-dev libnetcdff-dev gcc gfortran g++ mpich git cmake python-is-python3 \
     && apt-get clean
 
 # create pschism_TVD-VL and pschism_WWM_TVD-VL executables
@@ -37,7 +37,7 @@ RUN cd /tmp/bandsos-platform \
     && cd scripts \
     && gfortran -o tidefac tide_fac.f \
     && cp -v tidefac /usr/bin \
-    && rm -rf /tmp/bandsos-platform 
+    && rm -rf /tmp/bandsos-platform
 
 WORKDIR /mnt
 

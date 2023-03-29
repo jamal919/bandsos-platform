@@ -187,9 +187,12 @@ class GFS_0p25_1hr:
                     # Check if time is parsed correctly as np.datetime64, if not throws an exception
                     with xr.open_dataset(fname) as ds:
                         logging.info(f'Testing time variable for integrity')
-                        test_time = isinstance(ds['time'].data[0], np.datetime64)
+                        is_datetime64 = isinstance(ds['time'].data[0], np.datetime64)
 
-                    assert test_time
+                    if not is_datetime64:
+                        logging.info(f'Time is not correct, removing {fname}')
+                        os.remove(fname)
+                        raise Exception(f'Time is not correct.')
                 except Exception as e:
                     logging.info(f"An exception during saving (retry {retry + 1}): ", e)
                     retry += 1

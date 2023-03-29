@@ -29,4 +29,4 @@ section to see how you can run the following scripts.
 ```
 """
 
-__version__ = "0.4"
+__version__ = "0.5"

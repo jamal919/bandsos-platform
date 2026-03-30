@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pandas as pd
+import os
+from copy import deepcopy
+from datetime import datetime, timedelta
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from netCDF4 import Dataset
 from scipy.interpolate import griddata
 from scipy.spatial import distance
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.ticker import MultipleLocator
-from datetime import datetime, timedelta
-from netCDF4 import Dataset
-from copy import deepcopy
-import os
+
 
 class Gr3:
     def __init__(self, nodes=[], elems=[], data=[], epsg=4326):
@@ -35,11 +36,11 @@ class Gr3:
             ds = f.readlines()
 
             __line = 0
-            
+
             # Reading the gr3 name
             self.grname = ds[__line].strip()
             __line = __line + 1
-            
+
             # Reading the number of nodes and elements
             __nelem, __nnode = np.fromstring(string=ds[__line].split('\n')[0], count=2, sep=' ')
             self.nelem = int(__nelem)
@@ -48,7 +49,7 @@ class Gr3:
 
             # Reading the nodes
             try:
-                __nodes = np.genfromtxt(fname=ds[__line:__line+self.nnode])
+                __nodes = np.genfromtxt(fname=ds[__line:__line + self.nnode])
             except:
                 raise Exception('Node data error')
             else:
@@ -59,7 +60,7 @@ class Gr3:
             if len(ds) >= self.nelem + self.nnode + 2:
                 try:
                     # Reading the elements
-                    __elems = np.genfromtxt(fname=ds[__line:__line+self.nelem], dtype=int)
+                    __elems = np.genfromtxt(fname=ds[__line:__line + self.nelem], dtype=int)
                 except:
                     raise Exception('Element table error')
                 else:
@@ -68,16 +69,16 @@ class Gr3:
                     self.elems = self.elems[:, 2:]
             else:
                 Warning('Element table does not exist in the file.')
-        
-        return(self)
+
+        return (self)
 
     @property
     def x(self):
-        return(self.nodes[:, 0])
+        return (self.nodes[:, 0])
 
     @property
     def y(self):
-        return(self.nodes[:, 1])
+        return (self.nodes[:, 1])
 
     def __add__(self, other):
         if isinstance(other, (Gr3)):
@@ -86,7 +87,7 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
@@ -94,7 +95,7 @@ class Gr3:
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Gr3(
                     nodes=self.nodes,
                     elems=self.elems,
@@ -107,7 +108,7 @@ class Gr3:
             except:
                 raise ValueError('Unequal data shape')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
@@ -124,7 +125,7 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
@@ -132,7 +133,7 @@ class Gr3:
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Gr3(
                     nodes=self.nodes,
                     elems=self.elems,
@@ -145,7 +146,7 @@ class Gr3:
             except:
                 raise ValueError('Unequal data shape')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
@@ -162,7 +163,7 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
@@ -170,7 +171,7 @@ class Gr3:
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Gr3(
                     nodes=self.nodes,
                     elems=self.elems,
@@ -183,7 +184,7 @@ class Gr3:
             except:
                 raise ValueError('Unequal data shape')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
@@ -200,7 +201,7 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
@@ -208,11 +209,11 @@ class Gr3:
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Gr3(
                     nodes=self.nodes,
                     elems=self.elems,
-                    data=self.data/other
+                    data=self.data / other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -221,16 +222,15 @@ class Gr3:
             except:
                 raise ValueError('Unequal data shape')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
-                        data=self.data/other
+                        data=self.data / other
                     )
                 )
         else:
             raise ValueError('Not a Gr3, array, or a number!')
-
 
     def __gt__(self, other):
         if isinstance(other, (Gr3)):
@@ -239,19 +239,19 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
-                        data=self.data>other.data
+                        data=self.data > other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Gr3(
                     nodes=self.nodes,
                     elems=self.elems,
-                    data=self.data>other
+                    data=self.data > other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -260,11 +260,11 @@ class Gr3:
             except:
                 raise ValueError('Unequal data shape')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
-                        data=self.data>other
+                        data=self.data > other
                     )
                 )
         else:
@@ -277,19 +277,19 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
-                        data=self.data>=other.data
+                        data=self.data >= other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Gr3(
                     nodes=self.nodes,
                     elems=self.elems,
-                    data=self.data>=other
+                    data=self.data >= other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -298,11 +298,11 @@ class Gr3:
             except:
                 raise ValueError('Unequal data shape')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
-                        data=self.data>=other
+                        data=self.data >= other
                     )
                 )
         else:
@@ -315,19 +315,19 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
-                        data=self.data<other.data
+                        data=self.data < other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Gr3(
                     nodes=self.nodes,
                     elems=self.elems,
-                    data=self.data<other
+                    data=self.data < other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -336,11 +336,11 @@ class Gr3:
             except:
                 raise ValueError('Unequal data shape')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
-                        data=self.data<other
+                        data=self.data < other
                     )
                 )
         else:
@@ -353,19 +353,19 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
-                        data=self.data<=other.data
+                        data=self.data <= other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Gr3(
                     nodes=self.nodes,
                     elems=self.elems,
-                    data=self.data<=other
+                    data=self.data <= other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -374,11 +374,11 @@ class Gr3:
             except:
                 raise ValueError('Unequal data shape')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
-                        data=self.data<=other
+                        data=self.data <= other
                     )
                 )
         else:
@@ -391,19 +391,19 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
-                        data=self.data**other.data
+                        data=self.data ** other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Gr3(
                     nodes=self.nodes,
                     elems=self.elems,
-                    data=self.data**other
+                    data=self.data ** other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -412,16 +412,16 @@ class Gr3:
             except:
                 raise ValueError('Unequal data shape')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
-                        data=self.data**other
+                        data=self.data ** other
                     )
                 )
         else:
             raise ValueError('Not a Gr3, array, or a number!')
-            
+
     def logical_and(self, other):
         if isinstance(other, (Gr3)):
             try:
@@ -429,7 +429,7 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
@@ -438,7 +438,7 @@ class Gr3:
                 )
         else:
             raise ValueError('Not a Gr3, array, or a number!')
-    
+
     def logical_or(self, other):
         if isinstance(other, (Gr3)):
             try:
@@ -446,7 +446,7 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
@@ -460,7 +460,7 @@ class Gr3:
         '''
         Absolute value of the gr3 object
         '''
-        return(
+        return (
             Gr3(
                 nodes=self.nodes,
                 elems=self.elems,
@@ -475,9 +475,9 @@ class Gr3:
             except:
                 raise ValueError('Uneuqal gr3 object')
             else:
-                data = np.zeros_like(self.data)*other
+                data = np.zeros_like(self.data) * other
                 data[cond.data] = self.data[cond.data]
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
@@ -490,9 +490,9 @@ class Gr3:
             except:
                 raise ValueError('Unequal data shape')
             else:
-                data = np.zeros_like(self.data)*other
+                data = np.zeros_like(self.data) * other
                 data[cond] = self.data[cond]
-                return(
+                return (
                     Gr3(
                         nodes=self.nodes,
                         elems=self.elems,
@@ -501,7 +501,7 @@ class Gr3:
                 )
         else:
             raise ValueError('Not a Gr3, array, or a number!')
-            
+
     def inside(self, bbox):
         '''
         Return a true false grid indicating if it is inside the bbox. 
@@ -520,22 +520,22 @@ class Gr3:
             west, east, south, north = bbox
         except:
             raise ValueError('Bbox array is not an array of 4')
-        
+
         data = np.zeros_like(self.data)
-        
-        xcond = np.logical_and(self.nodes[:, 0]>=west, self.nodes[:, 0]<=east)
-        ycond = np.logical_and(self.nodes[:, 1]>=south, self.nodes[:, 1]<=north)
+
+        xcond = np.logical_and(self.nodes[:, 0] >= west, self.nodes[:, 0] <= east)
+        ycond = np.logical_and(self.nodes[:, 1] >= south, self.nodes[:, 1] <= north)
         cond = np.logical_and(xcond, ycond)
-        
+
         data[cond] = 1
-        
-        return(
+
+        return (
             Gr3(
                 nodes=self.nodes,
                 elems=self.elems,
                 data=data
-                )
             )
+        )
 
     def nearest(self, of):
         '''
@@ -567,25 +567,25 @@ class Gr3:
             tc = ax.tricontourf(
                 self.nodes[:, 0],
                 self.nodes[:, 1],
-                self.elems - 1, # python 0-based index
+                self.elems - 1,  # python 0-based index
                 self.data.flatten(),
                 levels=clevels,
                 cmap=cmap
             )
         except:
             raise Exception('Check data')
-        
+
         if colorbar:
             divider = make_axes_locatable(ax)
             cax = divider.append_axes(
-                position="right", 
-                size="5%", 
-                pad=0.05, 
-                axes_class=plt.Axes # Important if you use cartopy to create ax
+                position="right",
+                size="5%",
+                pad=0.05,
+                axes_class=plt.Axes  # Important if you use cartopy to create ax
             )
             plt.colorbar(tc, cax=cax)
-        
-        return(ax)
+
+        return (ax)
 
     def interpolate(self, at, method='linear'):
         pass
@@ -601,7 +601,7 @@ class Gr3:
         Save Gr3 data as netcdf file.
         '''
         pass
-    
+
     def save(self, fname):
         '''
 
@@ -622,8 +622,9 @@ class Gr3:
         String representation of Gr3 object.
         '''
         repr_string = f'''Gr3 object with {self.nnode} nodes, {self.nelem} elemenets, {self.data.shape[1]}  data columns'''
-        return(repr_string)
-            
+        return (repr_string)
+
+
 class Grid:
     def __init__(self, x, y, data=None):
         '''
@@ -650,7 +651,7 @@ class Grid:
             self.depth = 1
             self.data = np.zeros(shape=(self.size[0], self.size[1], self.depth))
         elif isinstance(data, (np.ndarray)):
-            self.depth = np.int(len(data.flatten())/self.size[0]/self.size[1])
+            self.depth = np.int(len(data.flatten()) / self.size[0] / self.size[1])
             try:
                 self.data = np.array(data).reshape((self.size[0], self.size[1], self.depth))
             except:
@@ -659,13 +660,13 @@ class Grid:
     @property
     def meshgrid(self):
         X, Y = np.meshgrid(self.x, self.y, indexing='ij')
-        return(X, Y)
+        return (X, Y)
 
     def reshape(self):
         '''
         Reshape the data to conform data structure.
         '''
-        self.depth = np.int(len(self.data.flatten())/self.size[0]/self.size[1])
+        self.depth = np.int(len(self.data.flatten()) / self.size[0] / self.size[1])
         self.data = self.data.reshape((self.size[0], self.size[1], self.depth))
 
     def __add__(self, other):
@@ -676,19 +677,19 @@ class Grid:
             except:
                 raise ValueError('Uneuqal grid object')
             else:
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
-                        data=self.data+other.data
+                        data=self.data + other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Grid(
                     x=self.x,
                     y=self.y,
-                    data=self.data+other
+                    data=self.data + other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -697,7 +698,7 @@ class Grid:
                 assert len(other.shape) == 3
                 assert other.shape[2] == self.depth
 
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
@@ -711,7 +712,7 @@ class Grid:
                     return_data = np.copy(self.data)
                     for i in np.arange(self.depth):
                         return_data[:, :, i] = return_data[:, :, i] + other
-                    return(
+                    return (
                         Grid(
                             x=self.x,
                             y=self.y,
@@ -729,7 +730,7 @@ class Grid:
             except:
                 raise ValueError('Uneuqal grid object')
             else:
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
@@ -737,7 +738,7 @@ class Grid:
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Grid(
                     x=self.x,
                     y=self.y,
@@ -750,7 +751,7 @@ class Grid:
                 assert len(other.shape) == 3
                 assert other.shape[2] == self.depth
 
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
@@ -764,7 +765,7 @@ class Grid:
                     return_data = np.copy(self.data)
                     for i in np.arange(self.depth):
                         return_data[:, :, i] = return_data[:, :, i] - other
-                    return(
+                    return (
                         Grid(
                             x=self.x,
                             y=self.y,
@@ -782,19 +783,19 @@ class Grid:
             except:
                 raise ValueError('Uneuqal grid object')
             else:
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
-                        data=self.data*other.data
+                        data=self.data * other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Grid(
                     x=self.x,
                     y=self.y,
-                    data=self.data*other
+                    data=self.data * other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -803,7 +804,7 @@ class Grid:
                 assert len(other.shape) == 3
                 assert other.shape[2] == self.depth
 
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
@@ -817,7 +818,7 @@ class Grid:
                     return_data = np.copy(self.data)
                     for i in np.arange(self.depth):
                         return_data[:, :, i] = return_data[:, :, i] * other
-                    return(
+                    return (
                         Grid(
                             x=self.x,
                             y=self.y,
@@ -835,19 +836,19 @@ class Grid:
             except:
                 raise ValueError('Uneuqal grid object')
             else:
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
-                        data=self.data/other.data
+                        data=self.data / other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Grid(
                     x=self.x,
                     y=self.y,
-                    data=self.data/other
+                    data=self.data / other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -856,11 +857,11 @@ class Grid:
                 assert len(other.shape) == 3
                 assert other.shape[2] == self.depth
 
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
-                        data=self.data/other
+                        data=self.data / other
                     )
                 )
             except:
@@ -869,8 +870,8 @@ class Grid:
 
                     return_data = np.copy(self.data)
                     for i in np.arange(self.depth):
-                        return_data[:, :, i] = return_data[:, :, i]/other
-                    return(
+                        return_data[:, :, i] = return_data[:, :, i] / other
+                    return (
                         Grid(
                             x=self.x,
                             y=self.y,
@@ -888,19 +889,19 @@ class Grid:
             except:
                 raise ValueError('Uneuqal grid object')
             else:
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
-                        data=self.data<other.data
+                        data=self.data < other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Grid(
                     x=self.x,
                     y=self.y,
-                    data=self.data<other
+                    data=self.data < other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -909,11 +910,11 @@ class Grid:
                 assert len(other.shape) == 3
                 assert other.shape[2] == self.depth
 
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
-                        data=self.data<other
+                        data=self.data < other
                     )
                 )
             except:
@@ -922,8 +923,8 @@ class Grid:
 
                     return_data = np.copy(self.data)
                     for i in np.arange(self.depth):
-                        return_data[:, :, i] = return_data[:, :, i]<other
-                    return(
+                        return_data[:, :, i] = return_data[:, :, i] < other
+                    return (
                         Grid(
                             x=self.x,
                             y=self.y,
@@ -941,19 +942,19 @@ class Grid:
             except:
                 raise ValueError('Uneuqal grid object')
             else:
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
-                        data=self.data<=other.data
+                        data=self.data <= other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Grid(
                     x=self.x,
                     y=self.y,
-                    data=self.data<=other
+                    data=self.data <= other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -962,11 +963,11 @@ class Grid:
                 assert len(other.shape) == 3
                 assert other.shape[2] == self.depth
 
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
-                        data=self.data<=other
+                        data=self.data <= other
                     )
                 )
             except:
@@ -975,8 +976,8 @@ class Grid:
 
                     return_data = np.copy(self.data)
                     for i in np.arange(self.depth):
-                        return_data[:, :, i] = return_data[:, :, i]<=other
-                    return(
+                        return_data[:, :, i] = return_data[:, :, i] <= other
+                    return (
                         Grid(
                             x=self.x,
                             y=self.y,
@@ -994,19 +995,19 @@ class Grid:
             except:
                 raise ValueError('Uneuqal grid object')
             else:
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
-                        data=self.data>other.data
+                        data=self.data > other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Grid(
                     x=self.x,
                     y=self.y,
-                    data=self.data>other
+                    data=self.data > other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -1015,7 +1016,7 @@ class Grid:
                 assert len(other.shape) == 3
                 assert other.shape[2] == self.depth
 
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
@@ -1029,7 +1030,7 @@ class Grid:
                     return_data = np.copy(self.data)
                     for i in np.arange(self.depth):
                         return_data[:, :, i] = return_data[:, :, i] > other
-                    return(
+                    return (
                         Grid(
                             x=self.x,
                             y=self.y,
@@ -1047,19 +1048,19 @@ class Grid:
             except:
                 raise ValueError('Uneuqal grid object')
             else:
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
-                        data=self.data>=other.data
+                        data=self.data >= other.data
                     )
                 )
         elif isinstance(other, (float, int)):
-            return(
+            return (
                 Grid(
                     x=self.x,
                     y=self.y,
-                    data=self.data>=other
+                    data=self.data >= other
                 )
             )
         elif isinstance(other, (np.ndarray)):
@@ -1068,7 +1069,7 @@ class Grid:
                 assert len(other.shape) == 3
                 assert other.shape[2] == self.depth
 
-                return(
+                return (
                     Grid(
                         x=self.x,
                         y=self.y,
@@ -1082,7 +1083,7 @@ class Grid:
                     return_data = np.copy(self.data)
                     for i in np.arange(self.depth):
                         return_data[:, :, i] = return_data[:, :, i] >= other
-                    return(
+                    return (
                         Grid(
                             x=self.x,
                             y=self.y,
@@ -1094,21 +1095,21 @@ class Grid:
 
     def __pow__(self, other):
         if isinstance(other, (float, int)):
-            return(
+            return (
                 Grid(
                     x=self.x,
                     y=self.y,
-                    data=self.data**other
+                    data=self.data ** other
                 )
             )
         else:
             raise ValueError('Only float or int as power')
-    
+
     def __repr__(self):
         '''
         String representation.
         '''
-        return(self.data.__repr__())
+        return (self.data.__repr__())
 
     def __getitem__(self, key):
         return self.data[key]
@@ -1120,14 +1121,14 @@ class Grid:
         '''
         Return a list to iterate over - i in object
         '''
-        return(iter(self.data.reshape((self.size[0]*self.size[1], self.depth))))
+        return (iter(self.data.reshape((self.size[0] * self.size[1], self.depth))))
 
     def apply(self, func, **kwargs):
-        f = lambda x : func(x, **kwargs)
+        f = lambda x: func(x, **kwargs)
 
         data = np.array([f(x) for x in self])
-                
-        return(
+
+        return (
             Grid(
                 x=self.x,
                 y=self.y,
@@ -1145,16 +1146,16 @@ class Grid:
             originx, originy = origin
         except:
             raise Exception('Origin must be a list of lon, lat')
-        
+
         X, Y = self.meshgrid
-        dfac = 60*1.852*1000
-        dist_x = dfac*np.cos(np.deg2rad(Y))*(X-originx)
-        dist_y = dfac*(Y-originy)
-            
-        r = np.sqrt(dist_x**2 + dist_y**2)
+        dfac = 60 * 1.852 * 1000
+        dist_x = dfac * np.cos(np.deg2rad(Y)) * (X - originx)
+        dist_y = dfac * (Y - originy)
+
+        r = np.sqrt(dist_x ** 2 + dist_y ** 2)
         theta = np.arctan2(dist_y, dist_x)
 
-        return(
+        return (
             Grid(
                 x=self.x,
                 y=self.y,
@@ -1181,52 +1182,53 @@ class Grid:
 
         if isinstance(at, (list, tuple)):
             # For x, y list or tuple
-            return(
+            return (
                 griddata(
-                    points, values, 
-                    at, 
-                    method=method, 
-                    fill_value=fill_value, 
+                    points, values,
+                    at,
+                    method=method,
+                    fill_value=fill_value,
                     rescale=rescale
                 )
             )
-        
+
         if isinstance(at, Grid):
-            return(
+            return (
                 Grid(
                     x=at.x,
                     y=at.y,
                     data=griddata(
                         points, values, at.meshgrid,
-                        method=method, 
+                        method=method,
                         fill_value=fill_value,
                         rescale=rescale
                     )
                 ))
 
+
 class Sflux:
     def __init__(self, grid, basedate, sflux_type='air', nstep=96, priority=1, syncstep=10, path='./sflux'):
         self.grid = grid
-        self.nstep = nstep # No of step
+        self.nstep = nstep  # No of step
         self.basedate = basedate
         self.sflux_type = sflux_type
-        self.nfile = 0 # No file at the beginning
-        self.priority = priority # sflux_air_1 or 2
-        self.syncstep = syncstep # Sync the netCDF each syncstep
+        self.nfile = 0  # No file at the beginning
+        self.priority = priority  # sflux_air_1 or 2
+        self.syncstep = syncstep  # Sync the netCDF each syncstep
         self.path = path
 
         sflux_func_map = {
-            'air' : {
-                'create_netcdf' : self.create_netcdf_air,
-                'put_value' : self.put_value_air
+            'air': {
+                'create_netcdf': self.create_netcdf_air,
+                'put_value': self.put_value_air
             },
-            'prc' : {
-                'create_netcdf' : self.create_netcdf_prc,
-                'put_value' : self.put_value_prc
+            'prc': {
+                'create_netcdf': self.create_netcdf_prc,
+                'put_value': self.put_value_prc
             },
-            'rad' : {
-                'create_netcdf' : self.create_netcdf_rad,
-                'put_value' : self.put_value_rad
+            'rad': {
+                'create_netcdf': self.create_netcdf_rad,
+                'put_value': self.put_value_rad
             }
         }
 
@@ -1235,7 +1237,7 @@ class Sflux:
             self.put_value = sflux_func_map[sflux_type]['put_value']
         else:
             raise Exception(f"sflux_type {self.sflux_type} not correct, one of 'air', 'prc', and 'rad'")
-        
+
         # Directory creation
         if not os.path.exists(self.path):
             os.mkdir(self.path)
@@ -1249,7 +1251,6 @@ class Sflux:
         # Creating the file first
         self.nc = Dataset(self.filepath, 'w', format='NETCDF4_CLASSIC')
 
-        
         # Creating the dimensions
         self.nc.createDimension(dimname='nx_grid', size=len(self.grid.x))
         self.nc.createDimension(dimname='ny_grid', size=len(self.grid.y))
@@ -1337,13 +1338,12 @@ class Sflux:
         self.v_spfh.units = 1
         self.v_spfh.long_name = 'Specific Humidity (2m AGL)'
         self.v_spfh.standard_name = 'surface_specific_humidity'
-        
+
         # Writing lon-lat once
         X, Y = self.grid.meshgrid
         self.v_lon[:] = X.T
         self.v_lat[:] = Y.T
-        
-    
+
     def put_value_air(self, stepi, at, flux):
         if isinstance(at, (datetime, pd.DatetimeIndex)):
             at = pd.to_datetime(at) - self.basedate
@@ -1352,7 +1352,7 @@ class Sflux:
         else:
             raise Exception(f'at must be datetime or timedelta object')
 
-        self.v_time[stepi] = at.days + at.seconds/float(86400)
+        self.v_time[stepi] = at.days + at.seconds / float(86400)
         self.v_uwind[stepi, :, :] = flux['uwind']
         self.v_vwind[stepi, :, :] = flux['vwind']
         self.v_prmsl[stepi, :, :] = flux['prmsl']
@@ -1362,7 +1362,7 @@ class Sflux:
         self.step = self.step + 1
 
         # Syncing each 10 step
-        if self.step%self.syncstep:
+        if self.step % self.syncstep:
             self.nc.sync()
 
     def create_netcdf_prc(self):
@@ -1399,13 +1399,15 @@ class Sflux:
 
     def sfluxtxt(self, dt):
         dt = dt.total_seconds()
-        max_window = self.nstep*dt/float(3600)
+        max_window = self.nstep * dt / float(3600)
         filepath = os.path.join(self.path, 'sflux_inputs.txt')
         with open(filepath, mode='w') as f:
             f.write('&sflux_inputs\n')
-            f.write('air_1_relative_weight=1.,	!air_[12]_relative_weight set the relative ratio between datasets 1 and 2\n')
+            f.write(
+                'air_1_relative_weight=1.,	!air_[12]_relative_weight set the relative ratio between datasets 1 and 2\n')
             f.write('air_2_relative_weight=99., \n')
-            f.write(f'air_1_max_window_hours={max_window:.1f},	!max. # of hours (offset from start time in each file) in each file of set 1\n')
+            f.write(
+                f'air_1_max_window_hours={max_window:.1f},	!max. # of hours (offset from start time in each file) in each file of set 1\n')
             f.write('air_1_fail_if_missing=.true.,	!set 1 is mandatory\n')
             f.write('air_2_fail_if_missing=.false., 	!set 2 is optional\n')
             f.write("air_1_file='sflux_air_1', 	!file name for 1st set of 'air'\n")
@@ -1416,6 +1418,7 @@ class Sflux:
             f.write("stmp_name='stmp',  		!name of surface air T\n")
             f.write("spfh_name='spfh',  		!name of specific humidity\n")
             f.write('/\n')
+
 
 class Bctides:
     def __init__(self, info='', ntip=0, tip_dp=0, tip=[], nbfr=0, bfr=[], nope=0, boundaries=[]):
@@ -1439,34 +1442,35 @@ class Bctides:
             self.ntip, self.tip_dp = np.fromstring(ds[1].split('!')[0], count=2, sep=' ')
             self.ntip = int(self.ntip)
             __lnproc = 1
-            
+
             for i in np.arange(self.ntip):
-                __talpha = ds[__lnproc+1].split('\n')[0]
-                __jspc, __tamp, __tfreq, __tnf, __tear = np.fromstring(ds[__lnproc+2].split('\n')[0], count=5, sep=' ')
+                __talpha = ds[__lnproc + 1].split('\n')[0]
+                __jspc, __tamp, __tfreq, __tnf, __tear = np.fromstring(ds[__lnproc + 2].split('\n')[0], count=5,
+                                                                       sep=' ')
                 __rec = dict(talpha=__talpha, jspc=__jspc, tamp=__tamp, tfreq=__tfreq, tnf=__tnf, tear=__tear)
                 self.tip.append(__rec)
                 __lnproc = __lnproc + 2
-            
+
             # Reading the boundary frequencies
-            self.nbfr = np.fromstring(ds[__lnproc+1], count=1, sep=' ')
+            self.nbfr = np.fromstring(ds[__lnproc + 1], count=1, sep=' ')[0]
             self.nbfr = int(self.nbfr)
             __lnproc = __lnproc + 1
-            
+
             self.bfr = []
             for i in np.arange(self.nbfr):
-                __alpha = ds[__lnproc+1].split('\n')[0]
-                __amig, __ff, __face = np.fromstring(ds[__lnproc+2].split('\n')[0], count=3, sep=' ')
+                __alpha = ds[__lnproc + 1].split('\n')[0]
+                __amig, __ff, __face = np.fromstring(ds[__lnproc + 2].split('\n')[0], count=3, sep=' ')
                 __rec = dict(alpha=__alpha, amig=__amig, ff=__ff, face=__face)
                 self.bfr.append(__rec)
                 __lnproc = __lnproc + 2
-            
+
             # Open boundary sagments
-            self.nope = ds[__lnproc+1].split(' ')[0]
+            self.nope = ds[__lnproc + 1].split(' ')[0]
             self.nope = int(self.nope)
             __lnproc = __lnproc + 1
 
             # For each open boundary sagment
-            self.boundaries = ds[__lnproc+1:len(ds)]
+            self.boundaries = ds[__lnproc + 1:len(ds)]
 
     def update(self, tidefac):
         # Update time
@@ -1481,7 +1485,7 @@ class Bctides:
         # Updating the Boundary frequency nodal factors and equilibrium argument
         for __bfr in self.bfr:
             __alpha = __bfr['alpha'].strip().upper()
-                    
+
             if __alpha in tidefac.const.keys():
                 __bfr['ff'] = tidefac.const[__alpha][0]
                 __bfr['face'] = tidefac.const[__alpha][1]
@@ -1498,14 +1502,14 @@ class Bctides:
         """
         for __bfr in self.bfr:
             __alpha = __bfr['alpha'].strip().upper()
-            if __alpha=='SA':
-                sim_start = datetime(year=int(tidefac.year), month=int(tidefac.month), day=int(tidefac.day), hour=int(tidefac.hour))
+            if __alpha == 'SA':
+                sim_start = datetime(year=int(tidefac.year), month=int(tidefac.month), day=int(tidefac.day),
+                                     hour=int(tidefac.hour))
                 year_start = datetime(year=int(tidefac.year), month=1, day=1, hour=0)
-                omega = 2*np.pi/(365*86400) # rad/sec
-                delta_t = (sim_start - year_start).total_seconds() # in sec
-                eq_arg = np.rad2deg(omega*delta_t) # in degrees
+                omega = 2 * np.pi / (365 * 86400)  # rad/sec
+                delta_t = (sim_start - year_start).total_seconds()  # in sec
+                eq_arg = np.rad2deg(omega * delta_t)  # in degrees
                 __bfr['face'] = eq_arg
-                
 
     def write(self, filepath):
         with open(filepath, 'w') as f:
@@ -1516,29 +1520,30 @@ class Bctides:
             f.write('{:d} {:3.2f} !ntip, tip_dp\n'.format(int(self.ntip), float(self.tip_dp)))
 
             for __tip in self.tip:
-                f.write('{:s}\n{:d}\t{:.6f}\t{:.16f}\t{:.5f}\t{:.2f}\n'\
-                        .format(__tip['talpha'].strip().upper(),\
-                                int(__tip['jspc']),\
-                                __tip['tamp'],\
-                                __tip['tfreq'],\
-                                __tip['tnf'],\
+                f.write('{:s}\n{:d}\t{:.6f}\t{:.16f}\t{:.5f}\t{:.2f}\n' \
+                        .format(__tip['talpha'].strip().upper(), \
+                                int(__tip['jspc']), \
+                                __tip['tamp'], \
+                                __tip['tfreq'], \
+                                __tip['tnf'], \
                                 __tip['tear']))
 
             # Boundary frequencies
             f.write('{:d} !nbfr\n'.format(int(self.nbfr)))
 
             for __bfr in self.bfr:
-                f.write('{:s}\n{:.16E}\t{:.6f}\t{:.2f}\n'\
-                        .format(__bfr['alpha'].strip().upper(),\
-                                __bfr['amig'],\
-                                __bfr['ff'],\
+                f.write('{:s}\n{:.16E}\t{:.6f}\t{:.2f}\n' \
+                        .format(__bfr['alpha'].strip().upper(), \
+                                __bfr['amig'], \
+                                __bfr['ff'], \
                                 __bfr['face']))
 
             # Open boundaries
             f.write('{:d} !Number of Open Boundaries\n'.format(self.nope))
-            
+
             for __line in self.boundaries:
                 f.write(__line)
+
 
 class Tidefacout:
     def __init__(self, year=0, month=0, day=0, hour=0, rnday=0, const={}):
@@ -1548,19 +1553,19 @@ class Tidefacout:
         self.hour = hour
         self.rnday = rnday
         self.const = deepcopy(const)
-    
+
     def read(self, filepath):
         # Reading date information
         with open(filepath, 'r') as f:
             # Reading the date section
             __ds = f.readline()
-            #__date = np.array(self.r.findall(__ds), dtype='float')
+            # __date = np.array(self.r.findall(__ds), dtype='float')
             __date = np.fromstring(__ds, dtype=float, count=4, sep=',')
             self.year = __date[0]
             self.month = int(__date[1])
-            self.day = int(__date[2]) 
+            self.day = int(__date[2])
             self.hour = int(__date[3])
-            
+
             # Reading the run length section
             __ds = f.readline()
             __rnday = np.fromstring(__ds, dtype=float, count=1, sep=',')
@@ -1570,12 +1575,13 @@ class Tidefacout:
         __const = np.genfromtxt(fname=filepath, dtype=None, skip_header=6, \
                                 encoding=None, delimiter=None, autostrip=True)
         __const = np.array([[i for i in j] for j in __const])
-        __const = {i[0].upper():[float(j) for j in i[1:3]] for i in __const}
+        __const = {i[0].upper(): [float(j) for j in i[1:3]] for i in __const}
         self.const = __const
 
         # Tidefac header information
-        self.info = '{:.2f} days - {:4.0f}/{:02.0f}/{:02.0f} {:02.2f} UTC'.format(self.rnday,\
-                self.year, self.month, self.day, self.hour)
+        self.info = '{:.2f} days - {:4.0f}/{:02.0f}/{:02.0f} {:02.2f} UTC'.format(self.rnday, \
+                                                                                  self.year, self.month, self.day,
+                                                                                  self.hour)
 
     def __str__(self):
-        return(self.info)
+        return (self.info)

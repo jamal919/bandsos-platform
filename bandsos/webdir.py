@@ -9,24 +9,25 @@ Ref:
 - pygit2: https://www.pygit2.org/index.html 
 
 '''
-import shutil
+import logging
 import os
+import shutil
+import typing
 from subprocess import check_call
 from urllib.error import HTTPError
-import warnings
-import typing
+
 from ghapi.all import GhApi
-import logging
+
 
 class GithubDirectory:
-    def __init__(self, fdir:typing.Union[str, bytes, os.PathLike], username:str, access_token:str, license='mit'):
-        '''
+    def __init__(self, fdir: typing.Union[str, bytes, os.PathLike], username: str, access_token: str, license='mit'):
+        """
         fdir: rootdir/dirname
-        '''
-        self.rootdir = os.path.dirname(fdir) 
-        self.dirname = os.path.basename(fdir)  
-        self.username = username # github username
-        self.access_token = access_token # github access key
+        """
+        self.rootdir = os.path.dirname(fdir)
+        self.dirname = os.path.basename(fdir)
+        self.username = username  # github username
+        self.access_token = access_token  # github access key
         self.online = False
         self.page_activated = False
         self.local = False
@@ -69,7 +70,7 @@ class GithubDirectory:
         # Then create locally
         if not os.path.exists(self.fdir):
             os.mkdir(self.fdir)
-        
+
         # Initialize git repository
         try:
             check_call([self.git, 'init'], cwd=self.fdir)
@@ -83,15 +84,18 @@ class GithubDirectory:
             raise HTTPError(code=e.code, msg=f'Can not access {self.username}/{self.dirname} to check branch.')
 
         if len(branches) == 0:
-            check_call(['echo', f'{self.license}', '>', 'LICENSE'], cwd=self.fdir) # a license file
+            check_call(['echo', f'{self.license}', '>', 'LICENSE'], cwd=self.fdir)  # a license file
             check_call(['git', 'add', 'LIENCE'], cwd=self.fdir)
             check_call(['git', 'commit', '-m', 'Initialize repository'], cwd=self.fdir)
 
         try:
-            check_call(['git', 'remote', 'add', 'origin', f'https://{self.access_token}@github.com/{self.username}/{self.dirname}.git'], cwd=self.fdir)
+            check_call(['git', 'remote', 'add', 'origin',
+                        f'https://{self.access_token}@github.com/{self.username}/{self.dirname}.git'], cwd=self.fdir)
         except:
             try:
-                check_call(['git', 'remote', 'set-url', 'origin', f'https://{self.access_token}@github.com/{self.username}/{self.dirname}.git'], cwd=self.fdir)
+                check_call(['git', 'remote', 'set-url', 'origin',
+                            f'https://{self.access_token}@github.com/{self.username}/{self.dirname}.git'],
+                           cwd=self.fdir)
             except Exception as e:
                 raise e
 
@@ -110,9 +114,9 @@ class GithubDirectory:
             logging.info(f'Github pages already published at {page["html_url"]}')
         except:
             # 404 Not found
-            page = self.ghapi.repos.create_pages_site(source={'branch':'main'})
+            page = self.ghapi.repos.create_pages_site(source={'branch': 'main'})
             logging.info(f'Github page is now published at {page["html_url"]}')
-        
+
         # Then try to enforce https
         try:
             self.ghapi.repos.update_information_about_pages_site(https_enforced=True)
@@ -121,15 +125,13 @@ class GithubDirectory:
         else:
             logging.info(f'Github pages https_enforced is now set to True')
 
-
     @property
     def fdir(self):
-        return(os.path.join(self.rootdir, self.dirname))
+        return (os.path.join(self.rootdir, self.dirname))
 
-    def add(self, fpaths:list, message:str):
+    def add(self, fpaths: list, message: str):
         for fpath in fpaths:
             check_call(['git', 'add', fpath], cwd=self.fdir)
-        
+
         check_call(['git', 'commit', '-m', message], cwd=self.fdir)
         check_call(['git', 'push', '--force'], cwd=self.fdir)
-        

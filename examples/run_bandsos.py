@@ -574,7 +574,7 @@ if __name__=='__main__':
         extent=tiles_extent,
         resolution=tiles_resolution, 
         drop_n_times=23) # removes first 23 hours
-    logging.info(f'Output tiles are generated for {cycle}.')
+    logging.info(f'Output tiles are generated for {cycle}')
     
     ## Creating colorbar
     logging.info(f'Generating colorbar for output tiles for {cycle}.')

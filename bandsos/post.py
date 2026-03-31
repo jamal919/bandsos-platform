@@ -11,7 +11,7 @@ import xarray as xr
 from scipy.spatial import cKDTree
 
 
-def create_water_level_tiles(out_nc, outdir, colormap, extent=[86, 93, 20.5, 24], resolution=0.0025, drop_n_times=0):
+def create_water_level_tiles(out_nc, outdir, colormap, extent, resolution=0.0025, drop_n_times=0):
     """
     Generate water level tiles
     """
@@ -83,10 +83,10 @@ def create_water_level_stations(out_nc, outdir, station_in, drop_n_times=0):
     stations = pd.read_csv(
         station_in,
         skiprows=2,
-        delim_whitespace=True,
+        sep=r"\s+",
         header=None,
-        names=['ID', 'Lon', 'Lat', 'Depth', 'Name']
-    ).drop(columns=['Depth'])
+        names=['ID', 'Lon', 'Lat', 'Depth', 'Name'])
+    stations = stations.drop(columns=['Depth'])
 
     stations['Organization'] = stations['Name'].apply(lambda x: x.split('_')[1] if len(x.split('_')) == 2 else '')
     stations['Name'] = stations['Name'].apply(lambda x: x.split('_')[0])  # Keeping only the name

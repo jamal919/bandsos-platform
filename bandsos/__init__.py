@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -29,4 +28,4 @@ section to see how you can run the following scripts.
 ```
 """
 
-__version__ = "0.7"
+__version__ = "0.8"

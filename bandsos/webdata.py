@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import logging
@@ -12,6 +11,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from herbie import HerbieLatest, Herbie
+from .utils import timeout
 
 CYCLE_FORMAT = "%Y%m%d%H"
 PRIORITY_SOURCE = ["aws", "google", "nomads"]
@@ -20,6 +20,7 @@ SEARCH_STRINGS = {
     "minimal": "(:UGRD:10 m above ground|:VGRD:10 m above ground|:PRMSL:mean sea level)"
 }
 SEARCH = SEARCH_STRINGS["minimal"]
+TIMELIMIT = 10*60 # 10 minutes
 
 
 class GFS_0p25_1hr:
@@ -164,7 +165,7 @@ def datetime2cycle(timestamp, fmt=CYCLE_FORMAT):
     cycle = timestamp.strftime(fmt)
     return cycle
 
-
+@timeout(TIMELIMIT)
 def download_step(timestamp, fxx, temp_dir):
     """Download the cycle using Herbie
 

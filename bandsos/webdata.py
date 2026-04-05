@@ -20,7 +20,7 @@ SEARCH_STRINGS = {
     "minimal": "(:UGRD:10 m above ground|:VGRD:10 m above ground|:PRMSL:mean sea level)"
 }
 SEARCH = SEARCH_STRINGS["minimal"]
-TIMELIMIT = 15*60 # 10 minutes
+TIMELIMIT = 30*60 # 30 minutes
 
 
 class GFS_0p25_1hr:

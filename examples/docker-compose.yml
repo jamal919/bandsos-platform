@@ -1,0 +1,27 @@
+services:
+  bandsos:
+    image: jamal919/bandsos
+    container_name: bandsos
+    restart: always
+    shm_size: '512mb'
+
+    # The DNS fix for Herbie/S3 resolution
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+    # Environment variables from your file
+    env_file:
+      - bandsos.env
+
+    # Volumes (Mounting local paths to container)
+    volumes:
+      - ~/.gitconfig:/etc/gitconfig
+      - .:/mnt
+      - /tmp:/tmp
+
+    # Running as your current user; create a .env file with these fields
+    user: "${UID}:${GID}"
+
+    # The execution command
+    command: python run_bandsos.py

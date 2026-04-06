@@ -129,8 +129,13 @@ class GFS_0p25_1hr:
                 continue
 
             self.logger.info(f"Downloading cycle {cycle}")
-            download_cycle(cycle, fname, extent=extent, fxx_list=None)
+            try:
+                download_cycle(cycle, fname, extent=extent, fxx_list=None)
+            except Exception as e:
+                self.logger.fatal(f"Could not complete downloading cycle {cycle} due to {e}")
             self.logger.info(f"Downloaded cycle {cycle} to {fname}")
+
+        return True
 
 
 def cycle2datetime(cycle, fmt=CYCLE_FORMAT):

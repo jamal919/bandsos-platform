@@ -133,6 +133,7 @@ class GFS_0p25_1hr:
                 download_cycle(cycle, fname, extent=extent, fxx_list=None)
             except Exception as e:
                 self.logger.fatal(f"Could not complete downloading cycle {cycle} due to {e}")
+                raise Exception(f"Could not complete downloading cycle {cycle} due to {e}")
             self.logger.info(f"Downloaded cycle {cycle} to {fname}")
 
         return True

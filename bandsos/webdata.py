@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from herbie import HerbieLatest, Herbie
+
 from .utils import timeout
 
 CYCLE_FORMAT = "%Y%m%d%H"
@@ -20,7 +21,7 @@ SEARCH_STRINGS = {
     "minimal": "(:UGRD:10 m above ground|:VGRD:10 m above ground|:PRMSL:mean sea level)"
 }
 SEARCH = SEARCH_STRINGS["minimal"]
-TIMELIMIT = 30*60 # 30 minutes
+TIMELIMIT = 30 * 60  # 30 minutes
 
 
 class GFS_0p25_1hr:
@@ -165,6 +166,7 @@ def datetime2cycle(timestamp, fmt=CYCLE_FORMAT):
     cycle = timestamp.strftime(fmt)
     return cycle
 
+
 def download_step(timestamp, fxx, temp_dir):
     """Download the cycle using Herbie
 
@@ -185,7 +187,13 @@ def download_step(timestamp, fxx, temp_dir):
     H = Herbie(timestamp, model="gfs", product="pgrb2.0p25", verbose=False, fxx=fxx, save_dir=temp_dir)
     ds_list = H.xarray(search=SEARCH)
 
-    ds_list = [ds.expand_dims("valid_time") for ds in ds_list]
+    try:
+        ds_list = [ds.expand_dims("valid_time") for ds in ds_list]
+    except:
+        logging.fatal(f"Herbie did not return valid dataset for {fxx}, exiting.")
+        import sys
+        sys.exit()
+
     ds = xr.merge(ds_list, combine_attrs="drop_conflicts", compat="override")
     ds = ds.assign_coords(time=ds.valid_time)
     ds = ds.swap_dims({"valid_time": "time"})

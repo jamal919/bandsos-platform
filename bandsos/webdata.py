@@ -4,15 +4,12 @@ import logging
 import shutil
 import time
 import warnings
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 from herbie import HerbieLatest, Herbie
-
-from .utils import timeout
 
 CYCLE_FORMAT = "%Y%m%d%H"
 PRIORITY_SOURCE = ["aws", "google", "nomads"]
@@ -21,8 +18,6 @@ SEARCH_STRINGS = {
     "minimal": "(:UGRD:10 m above ground|:VGRD:10 m above ground|:PRMSL:mean sea level)"
 }
 SEARCH = SEARCH_STRINGS["minimal"]
-TIMELIMIT = 30 * 60  # 30 minutes
-
 
 class GFS_0p25_1hr:
     def __init__(self, data_dir="./gfs", data_prefix='gfs_', search_length="3d"):
@@ -187,13 +182,7 @@ def download_step(timestamp, fxx, temp_dir):
     H = Herbie(timestamp, model="gfs", product="pgrb2.0p25", verbose=False, fxx=fxx, save_dir=temp_dir)
     ds_list = H.xarray(search=SEARCH)
 
-    try:
-        ds_list = [ds.expand_dims("valid_time") for ds in ds_list]
-    except:
-        logging.fatal(f"Herbie did not return valid dataset for {fxx}, exiting.")
-        import sys
-        sys.exit()
-
+    ds_list = [ds.expand_dims("valid_time") for ds in ds_list]
     ds = xr.merge(ds_list, combine_attrs="drop_conflicts", compat="override")
     ds = ds.assign_coords(time=ds.valid_time)
     ds = ds.swap_dims({"valid_time": "time"})
@@ -210,7 +199,6 @@ def download_step(timestamp, fxx, temp_dir):
     return fname
 
 
-@timeout(TIMELIMIT)
 def download_cycle(cycle, fname, extent=None, fxx_list=None):
     """Download the cycle using Herbie
 
@@ -224,7 +212,7 @@ def download_cycle(cycle, fname, extent=None, fxx_list=None):
     """
 
     if fxx_list is None:
-        fxx_list = np.append(np.arange(0, 120, 1), np.arange(120, 384 + 1, 3)).flatten().tolist()
+        fxx_list = np.arange(0, 121, 1).tolist()
 
     temp_dir = Path(f"./.tmp_{cycle}")
     if temp_dir.exists():
@@ -232,18 +220,14 @@ def download_cycle(cycle, fname, extent=None, fxx_list=None):
         if gfs_dir.exists():
             shutil.rmtree(gfs_dir)
 
-    def _download_task(fxx):
-        # The specific function to execute
+    fns = []
+    for fxx in fxx_list:
         func_download = lambda: download_step(timestamp=cycle2datetime(cycle, fmt=CYCLE_FORMAT), fxx=fxx,
                                               temp_dir=temp_dir)
-
-        # Apply your existing silent/retry logic inside the thread
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=UserWarning)
-            return retry(func=func_download)
-
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        fns = list(executor.map(_download_task, fxx_list))
+            fn = retry(func=func_download)
+            fns.append(fn)
 
     ds = xr.open_mfdataset(fns)
 

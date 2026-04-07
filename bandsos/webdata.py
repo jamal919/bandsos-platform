@@ -27,8 +27,6 @@ class GFS_0p25_1hr:
             data_dir (pathlike, optional): Data saving directory. Defaults to "./gfs".
             data_prefix (str, optional): Prefix of the output file. Defaults to 'gfs_'.
         """
-        self.logger = logging.getLogger("GFS_0p25_1hr")
-
         self.data_dir = Path(data_dir)
         if not self.data_dir.exists():
             self.data_dir.mkdir()
@@ -57,12 +55,12 @@ class GFS_0p25_1hr:
 
         tick_now = pd.to_datetime("now", utc=True).tz_localize(None)
         last_cycle = H.date
-        self.logger.info(f"Found last cycle {last_cycle}, checking age.")
+        logging.info(f"Found last cycle {last_cycle}, checking age.")
 
         cycle_age = tick_now - last_cycle
         if cycle_age <= pd.to_timedelta("5h"):
             last_cycle = last_cycle - pd.to_timedelta("6h")
-            self.logger.info(f"Last cycle is less than 5 hours old, going back to one-cycle back")
+            logging.info(f"Last cycle is less than 5 hours old, going back to one-cycle back")
 
         last_cycle = datetime2cycle(last_cycle)
         return last_cycle
@@ -125,16 +123,16 @@ class GFS_0p25_1hr:
         for cycle in self.remaining:
             fname = self.data_dir / f"{self.data_prefix}{cycle}.nc"
             if fname.exists():
-                self.logger.info(f"Already downloaded cycle {cycle}")
+                logging.info(f"Already downloaded cycle {cycle}")
                 continue
 
-            self.logger.info(f"Downloading cycle {cycle}")
+            logging.info(f"Downloading cycle {cycle}")
             try:
                 download_cycle(cycle, fname, extent=extent, fxx_list=None)
             except Exception as e:
-                self.logger.fatal(f"Could not complete downloading cycle {cycle} due to {e}")
+                logging.fatal(f"Could not complete downloading cycle {cycle} due to {e}")
                 raise Exception(f"Could not complete downloading cycle {cycle} due to {e}")
-            self.logger.info(f"Downloaded cycle {cycle} to {fname}")
+            logging.info(f"Downloaded cycle {cycle} to {fname}")
 
         return True
 
@@ -187,6 +185,9 @@ def download_step(timestamp, fxx, temp_dir):
 
     H = Herbie(timestamp, model="gfs", product="pgrb2.0p25", verbose=False, fxx=fxx, save_dir=temp_dir)
     ds_list = H.xarray(search=SEARCH)
+
+    ds_types = [type(ds) for ds in ds_list]
+    logging.info(f"Herbie returned {len(ds_list)} objects with dtype: {ds_types}")
 
     ds_list = [ds.expand_dims("valid_time") for ds in ds_list]
     ds = xr.merge(ds_list, combine_attrs="drop_conflicts", compat="override")
@@ -254,8 +255,7 @@ def download_cycle(cycle, fname, extent=None, fxx_list=None):
     shutil.rmtree(temp_dir)
 
 
-def retry(func: callable, retries: int = 5, delay: int = 1, exceptions: Exception = (Exception,),
-          logger: logging.Logger = None):
+def retry(func: callable, retries: int = 5, delay: int = 1, exceptions: Exception = (Exception,)):
     """Helper function to retry a function
 
     Args:
@@ -263,18 +263,12 @@ def retry(func: callable, retries: int = 5, delay: int = 1, exceptions: Exceptio
         retries (int, optional): Number of retries. Defaults to 3.
         delay (int, optional): Delay before next try. Defaults to 1.
         exceptions (Exception, optional): Which exceptions to consider. Defaults to (Exception,).
-        logger (logging.Logger, optional): Data logger. Defaults to None.
     """
-    if logger is None:
-        logger = logging.getLogger("retry")
-    else:
-        logger = logger
-
     for attempt in range(1, retries + 1):
         try:
             return func()
         except exceptions as e:
-            logger.info(f"Attempt {attempt}/{retries} failed with {e}")
+            logging.info(f"Attempt {attempt}/{retries} failed with {e}")
             if attempt == retries:
                 raise Exception("All retries failed")
             time.sleep(delay)

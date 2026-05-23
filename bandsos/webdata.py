@@ -114,6 +114,9 @@ class GFS_0p25_1hr:
         if extent is None:
             extent = [0, 360, -90, 90]
 
+        if len(self.remaining) == 0:
+            return False
+
         for cycle in self.remaining:
             fname = self.data_dir / f"{self.data_prefix}{cycle}.nc"
             if fname.exists():

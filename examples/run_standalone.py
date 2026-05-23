@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""Run BandSOS as standalone forecast system."""
+
 import logging
 import os
 import subprocess
@@ -18,10 +20,30 @@ __version__ = '0.8'
 SECONDS2DAY = 1 / 86400
 
 
-def init_cycle(cycle: str, model_spinup: str, forecast_length: str, cycle_step: str, cycle_format: str = '%Y%m%d%H'):
-    '''
-    Extracts and return a dict of `start_date`, `end_date`, `forecast_length`, `cycle_step` for a given cycle name.
-    '''
+def init_cycle(
+        cycle: str,
+        model_spinup: str,
+        forecast_length: str,
+        cycle_step: str,
+        cycle_format: str = '%Y%m%d%H') -> dict:
+    """
+    Create a information dict for a cycle.
+
+    Args:
+        cycle (str): cycle string
+        model_spinup (str): spinup period, e.g., 2d
+        forecast_length (str): forecast length, e.g., 5d
+        cycle_step (str): typically 6h
+        cycle_format (str): default "%Y%m%d%H"
+    
+    Return: Dict {
+        "cycle",
+        "cycle_date",
+        "start_date",
+        "end_date",
+        "cycle_step"
+    }
+    """
     cycle_date = pd.to_datetime(cycle, format=cycle_format)
     return (
         {
@@ -35,7 +57,14 @@ def init_cycle(cycle: str, model_spinup: str, forecast_length: str, cycle_step: 
     )
 
 
-def create_gfs_sflux(fname, n_buffer_steps=2, outpath='./', step='1H', nstep=24, basedate='1970-01-01'):
+def create_gfs_sflux(
+        fname,
+        n_buffer_steps=2,
+        outpath='./',
+        step='1H',
+        nstep=24,
+        basedate='1970-01-01') -> None:
+    """Generate Sflux for GFS data."""
     ds = xr.open_dataset(fname)
     step = pd.to_timedelta(step)
     basedate = pd.to_datetime(basedate)
@@ -81,7 +110,11 @@ def create_gfs_sflux(fname, n_buffer_steps=2, outpath='./', step='1H', nstep=24,
     sflux.sfluxtxt(dt=step)
 
 
-def create_tidefacinput(start_date, end_date, savedir='./'):
+def create_tidefacinput(
+        start_date,
+        end_date,
+        savedir='./') -> None:
+    """Generate tidefacinput for tide_fac program."""
     model_start = start_date
     model_end = end_date
     rnday = (model_end - model_start).total_seconds() * SECONDS2DAY
@@ -95,7 +128,13 @@ def create_tidefacinput(start_date, end_date, savedir='./'):
         f.write(f'{rnday}\n')
 
 
-def update_bctides(tidefac, bctides_template, bctides_outfile='bctides.in', tidefac_out='tide_fac.out', cycledir='./'):
+def update_bctides(
+        tidefac,
+        bctides_template,
+        bctides_outfile='bctides.in',
+        tidefac_out='tide_fac.out',
+        cycledir='./'):
+    """Update bctides template for the current simulation."""
     subprocess.call([tidefac], cwd=cycledir)
     bctides = Bctides()
     bctides.read(bctides_template)
@@ -106,12 +145,20 @@ def update_bctides(tidefac, bctides_template, bctides_outfile='bctides.in', tide
     bctides.write(os.path.join(cycledir, bctides_outfile))
 
 
-def create_climatic_discharge(discharge, tidefacinput, bnds, outdir='./'):
+def create_climatic_discharge(
+        discharge,
+        tidefacinput,
+        bnds,
+        outdir='./') -> None:
+    """Generate climatic discharge flux.th from the climatic discharge."""
     ds = pd.read_csv(discharge).set_index('Day')
 
     with open(tidefacinput, 'r') as f:
         tm = f.readlines()
-        start_year, start_month, start_day, start_hour = np.fromstring(tm[0], dtype=int, count=4, sep=',')
+        start_year, start_month, start_day, start_hour = np.fromstring(tm[0],
+                                                                       dtype=int,
+                                                                       count=4,
+                                                                       sep=',')
         rnday = np.fromstring(tm[1], dtype=float, count=1, sep=',')
         rnday = int(np.ceil(rnday))
         fxday = rnday + 1
@@ -121,10 +168,20 @@ def create_climatic_discharge(discharge, tidefacinput, bnds, outdir='./'):
 
     flux = ds.loc[days.dayofyear, bnds] * -1  # - is inflow
     flux = flux.set_index((days - days[0]).total_seconds())
-    flux.to_csv(os.path.join(outdir, 'flux.th'), sep='\t', float_format='%.1f', header=None, index=True)
+    flux.to_csv(
+        os.path.join(outdir, 'flux.th'),
+        sep='\t',
+        float_format='%.1f',
+        header=None,
+        index=True)
 
 
-def create_param(tidefacinput, param_template_file, param_output_file, wave=True):
+def create_param(
+        tidefacinput,
+        param_template_file,
+        param_output_file,
+        wave=True) -> None:
+    """Create the updated param.nml file."""
     with open(tidefacinput, 'r') as f:
         tm = f.readlines()
         start_year, start_month, start_day, start_hour = np.fromstring(tm[0], dtype=float, count=4, sep=',')
@@ -160,7 +217,11 @@ def create_param(tidefacinput, param_template_file, param_output_file, wave=True
     f90nml.patch(param_template_file, patch_nml, param_output_file)
 
 
-def create_wwminput(param_nml_file, wwminput_template_file, wwminput_output_file):
+def create_wwminput(
+        param_nml_file,
+        wwminput_template_file,
+        wwminput_output_file) -> None:
+    """Create wwminput file for simulation."""
     param_nml = f90nml.read(param_nml_file)
 
     rnday = float(param_nml['CORE']['rnday'])
@@ -215,6 +276,7 @@ def create_wwminput(param_nml_file, wwminput_template_file, wwminput_output_file
 
 
 def template_script(template, cycledir):
+    """Update the template with <cycle> with cycle directory."""
     with open(template, 'r') as f:
         ds = f.read()
 
@@ -225,10 +287,11 @@ def template_script(template, cycledir):
 
 
 def run_model(model_exe, ncpu, nscribe, run_dir):
+    """Run model with a given number of CPU."""
     run_model_subprocess = subprocess.Popen(
         ['mpirun', '-np', f'{ncpu}', model_exe, f'{nscribe}'],
-        # stdout=subprocess.PIPE, 
-        # stderr=subprocess.PIPE, 
+        # stdout=subprocess.PIPE
+        # stderr=subprocess.PIPE
         text=True,
         cwd=run_dir)
 
@@ -277,7 +340,10 @@ if __name__ == '__main__':
     if not os.path.exists(cycledir):
         os.mkdir(cycledir)
 
-    logging.basicConfig(filename=os.path.join(cycledir, 'bandsos.log'), level=logging.INFO, filemode='w')
+    logging.basicConfig(
+        filename=os.path.join(cycledir, 'bandsos.log'),
+        level=logging.INFO,
+        filemode='w')
     logging.info(f"{cycle_config['cycle']} -> {cycledir}")
     logging.info(forecast_config)
 
@@ -335,27 +401,50 @@ if __name__ == '__main__':
     logging.info('wwminput is generated.')
 
     # Replace with shuitls
-    subprocess.call(['cp', '-v', os.path.join(config_dir, 'hgrid.gr3.3.template'), os.path.join(cycledir, 'hgrid.gr3')])
-    subprocess.call(['cp', '-v', os.path.join(cycledir, 'hgrid.gr3'), os.path.join(cycledir, 'hgrid.ll')])
-    subprocess.call(['cp', '-v', os.path.join(cycledir, 'hgrid.gr3'), os.path.join(cycledir, 'hgrid_WWM.gr3')])
-    subprocess.call(['cp', '-v', os.path.join(config_dir, 'vgrid.in.2D.template'), os.path.join(cycledir, 'vgrid.in')])
-    subprocess.call(
-        ['cp', '-v', os.path.join(config_dir, 'manning.gr3.3.template'), os.path.join(cycledir, 'manning.gr3')])
-    subprocess.call(['cp', '-v', os.path.join(config_dir, 'windrot_geo2proj.gr3.template'),
+    subprocess.call(['cp', '-v',
+                     os.path.join(config_dir, 'hgrid.gr3.3.template'),
+                     os.path.join(cycledir, 'hgrid.gr3')])
+    subprocess.call(['cp', '-v',
+                     os.path.join(cycledir, 'hgrid.gr3'),
+                     os.path.join(cycledir, 'hgrid.ll')])
+    subprocess.call(['cp', '-v',
+                     os.path.join(cycledir, 'hgrid.gr3'),
+                     os.path.join(cycledir, 'hgrid_WWM.gr3')])
+    subprocess.call(['cp', '-v',
+                     os.path.join(config_dir, 'vgrid.in.2D.template'),
+                     os.path.join(cycledir, 'vgrid.in')])
+    subprocess.call(['cp', '-v',
+                     os.path.join(config_dir, 'manning.gr3.3.template'),
+                     os.path.join(cycledir, 'manning.gr3')])
+    subprocess.call(['cp', '-v',
+                     os.path.join(config_dir, 'windrot_geo2proj.gr3.template'),
                      os.path.join(cycledir, 'windrot_geo2proj.gr3')])
-    subprocess.call(
-        ['cp', '-v', os.path.join(config_dir, 'station.in.3.template'), os.path.join(cycledir, 'station.in')])
+    subprocess.call(['cp', '-v',
+                     os.path.join(config_dir, 'station.in.3.template'),
+                     os.path.join(cycledir, 'station.in')])
     if wave:
-        subprocess.call(
-            ['cp', '-v', os.path.join(config_dir, 'wwmbnd.gr3.inactive'), os.path.join(cycledir, 'wwmbnd.gr3')])
+        subprocess.call(['cp', '-v',
+                         os.path.join(config_dir, 'wwmbnd.gr3.inactive'),
+                         os.path.join(cycledir, 'wwmbnd.gr3')])
 
-    template_script(template=os.path.join(script_dir, 'run.slurm'), cycledir=cycledir)
-    template_script(template=os.path.join(script_dir, 'jeanzay_upload.sh'), cycledir=cycledir)
-    template_script(template=os.path.join(script_dir, 'jeanzay_download.sh'), cycledir=cycledir)
-
-    template_script(template=os.path.join(script_dir, 'run.pbs'), cycledir=cycledir)
-    template_script(template=os.path.join(script_dir, 'thor_upload.sh'), cycledir=cycledir)
-    template_script(template=os.path.join(script_dir, 'thor_download.sh'), cycledir=cycledir)
+    template_script(
+        template=os.path.join(script_dir, 'run.slurm'),
+        cycledir=cycledir)
+    template_script(
+        template=os.path.join(script_dir, 'jeanzay_upload.sh'),
+        cycledir=cycledir)
+    template_script(
+        template=os.path.join(script_dir, 'jeanzay_download.sh'),
+        cycledir=cycledir)
+    template_script(
+        template=os.path.join(script_dir, 'run.pbs'),
+        cycledir=cycledir)
+    template_script(
+        template=os.path.join(script_dir, 'thor_upload.sh'),
+        cycledir=cycledir)
+    template_script(
+        template=os.path.join(script_dir, 'thor_download.sh'),
+        cycledir=cycledir)
 
     logging.info('Template model files are copied')
 

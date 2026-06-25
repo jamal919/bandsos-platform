@@ -56,7 +56,6 @@ class GFS_0p25_1hr:
             save_dir=Path("./.herbie_data")
         )
 
-        tick_now = pd.to_datetime("now", utc=True).tz_localize(None)
         last_cycle = datetime2cycle(H.date)
         logging.info(f"Found last cycle {last_cycle}.")
 

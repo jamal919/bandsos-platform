@@ -35,9 +35,9 @@ from bandsos.post import create_water_level_tiles, create_water_level_stations
 from bandsos.schism import Grid, Sflux, Bctides, Tidefacout
 from bandsos.webdata import GFS_0p25_1hr
 from bandsos.webdir import GithubDirectory
+from bandsos.gfs import create_gfs_sflux
 
 SECONDS2DAY = 1 / 86400
-
 
 def init_cycle(
     cycle: str,
@@ -56,56 +56,6 @@ def init_cycle(
         "forecast_length": forecast_length,
         "cycle_step": cycle_step,
     }
-
-
-def create_gfs_sflux(
-    fname, n_buffer_steps=2, outpath="./", step="1h", nstep=24, basedate="1970-01-01"
-):
-    """Generate sflux files from GFS data."""
-    ds = xr.open_dataset(fname)
-    step = pd.to_timedelta(step)
-    basedate = pd.to_datetime(basedate)
-    start_time = pd.to_datetime(ds.time)[0]
-    end_time = pd.to_datetime(ds.time)[-1]
-    x = ds["lon"].values
-    y = ds["lat"].values
-
-    grid = Grid(x=x, y=y)
-    X, Y = np.meshgrid(x, y, indexing="xy")
-    sflux = Sflux(
-        grid=Grid(x=x, y=y),
-        basedate=basedate,
-        sflux_type="air",
-        nstep=nstep,
-        path=os.path.join(outpath, "sflux"),
-    )
-
-    timesteps = pd.date_range(start=start_time, end=end_time, freq=step)
-    stmp = X * 0 + 300
-    spfh = X * 0 + 0.0175873
-
-    for timestep in timesteps:
-        flux = {
-            "uwind": ds["u10"].interp(time=timestep, lon=x, lat=y),
-            "vwind": ds["v10"].interp(time=timestep, lon=x, lat=y),
-            "prmsl": ds["prmsl"].interp(time=timestep, lon=x, lat=y),
-            "stmp": stmp,
-            "spfh": spfh,
-            # "stmp":ds["stmp"].interp(time=timestep, lon=x, lat=y),
-            # "spfh":ds["spfh"].interp(time=timestep, lon=x, lat=y)
-        }
-
-        sflux.write(at=timestep, flux=flux)
-
-    ds.close()
-
-    # Buffer steps
-    for i in range(n_buffer_steps):
-        sflux.write(at=timestep + step * (i + 1), flux=flux)
-
-    sflux.finish()
-    sflux.sfluxtxt(dt=step)
-
 
 def create_tidefacinput(start_date, end_date, savedir="./"):
     """Create tidefacinput for tide_fac program."""

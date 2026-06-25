@@ -21,7 +21,7 @@ from glob import glob
 import numpy as np
 import pandas as pd
 import xarray as xr
-
+from .schism import Grid, Sflux
 
 def list_gfs_cycles(fdir: str, fname_pattern: str = 'gfs*.nc') -> pd.DataFrame:
     """
@@ -215,17 +215,50 @@ def create_gfs_data(
     combine_gfs_cycles(cycles=selected_cycles, fname=fname_out)
 
 
-if __name__ == '__main__':
-    print('''
-Example use: 
->>> create_gfs_data(
-        start_date='2022-09-07 04:00:00', 
-        end_date='2022-09-13', 
-        forecast_length='5D', 
-        cycle_step='6H', 
-        fdir='./fluxes/gfs', 
-        fname_pattern='gfs*.nc', 
-        fname_out='gfs.nc'
-        )
-'''
-          )
+def create_gfs_sflux(
+    fname, n_buffer_steps=2, outpath="./", step="1h", nstep=24, basedate="1970-01-01"
+):
+    """Generate sflux files from GFS data."""
+    ds = xr.open_dataset(fname)
+    step = pd.to_timedelta(step)
+    basedate = pd.to_datetime(basedate)
+    start_time = pd.to_datetime(ds.time)[0]
+    end_time = pd.to_datetime(ds.time)[-1]
+    x = ds["lon"].values
+    y = ds["lat"].values
+
+    grid = Grid(x=x, y=y)
+    X, Y = np.meshgrid(x, y, indexing="xy")
+    sflux = Sflux(
+        grid=Grid(x=x, y=y),
+        basedate=basedate,
+        sflux_type="air",
+        nstep=nstep,
+        path=os.path.join(outpath, "sflux"),
+    )
+
+    timesteps = pd.date_range(start=start_time, end=end_time, freq=step)
+    stmp = X * 0 + 300
+    spfh = X * 0 + 0.0175873
+
+    for timestep in timesteps:
+        flux = {
+            "uwind": ds["u10"].interp(time=timestep, lon=x, lat=y),
+            "vwind": ds["v10"].interp(time=timestep, lon=x, lat=y),
+            "prmsl": ds["prmsl"].interp(time=timestep, lon=x, lat=y),
+            "stmp": stmp,
+            "spfh": spfh,
+            # "stmp":ds["stmp"].interp(time=timestep, lon=x, lat=y),
+            # "spfh":ds["spfh"].interp(time=timestep, lon=x, lat=y)
+        }
+
+        sflux.write(at=timestep, flux=flux)
+
+    ds.close()
+
+    # Buffer steps
+    for i in range(n_buffer_steps):
+        sflux.write(at=timestep + step * (i + 1), flux=flux)
+
+    sflux.finish()
+    sflux.sfluxtxt(dt=step)

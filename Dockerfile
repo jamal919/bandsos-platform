@@ -48,7 +48,8 @@ RUN conda install -y -n base \
     numpy pandas netcdf4 xarray dask \
     gdal cartopy rasterio rioxarray \
     utide cmocean  f90nml \
-    ghapi f90nml herbie-data \
+    ghapi=1.0.5 \
+    f90nml herbie-data \
     && conda clean -afy
 
 # Copy executables from the builder stage

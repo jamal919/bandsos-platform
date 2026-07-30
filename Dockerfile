@@ -8,7 +8,6 @@ RUN apt-get update \
     && apt-get install -y libnetcdf-dev libnetcdff-dev gcc gfortran g++ libopenmpi-dev openmpi-bin git cmake python3 python-is-python3
 
 # Build SCHISM
-# -DCMAKE_Fortran_FLAGS_RELEASE="-O2 -fuse-ld=gold -ffree-line-length-none -fallow-argument-mismatch"
 RUN git clone https://github.com/schism-dev/schism /schism \
     && cd /schism && git checkout 9cdc9bb \
     && mkdir build && cd build \
@@ -33,20 +32,18 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezo
 RUN apt-get update && apt-get install -y libnetcdf19 libnetcdff7 openmpi-bin git wget \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Miniconda
+# Install Miniforge
 ENV CONDA_DIR=/opt/conda
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
-    /bin/bash /tmp/miniconda.sh -b -p /opt/conda && \
-    rm /tmp/miniconda.sh
+RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" -O /tmp/miniforge.sh && \
+    /bin/bash /tmp/miniforge.sh -b -p /opt/conda && \
+    rm /tmp/miniforge.sh
 
 # Put conda in PATH
 # ENV PROJ_DATA=/usr/share/proj
 ENV PATH=$CONDA_DIR/bin:$PATH
-RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main \
-    && conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 
 # Conda environment
-RUN conda install -y -n base -c conda-forge \
+RUN conda install -y -n base \
     python=3.13 \
     numpy pandas netcdf4 xarray dask \
     gdal cartopy rasterio rioxarray \

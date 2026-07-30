@@ -25,7 +25,7 @@ SEARCH = SEARCH_STRINGS["full"]
 class GFS_0p25_1hr:
     """GFS Data Class for 0p25 degree hourly outputs."""
 
-    def __init__(self, data_dir="./gfs", data_prefix='gfs_', search_length="3d"):
+    def __init__(self, data_dir="./gfs", data_prefix='gfs_', search_length="3D"):
         """GFS Data Class for 0p25 degree hourly outputs.
 
         Args:
@@ -181,8 +181,11 @@ def download_step(timestamp, fxx, temp_dir):
     cycle = timestamp.strftime("%Y%m%d%H")
 
     fname = temp_dir / f"{cycle}_f{fxx:03d}.nc"
+    task_results = (False, fname)
     if fname.exists():
-        return fname
+        logging.info(f"File already found - {fname}.")
+        task_results = (True, fname)
+        return task_results
 
     def dl_task():
         H = Herbie(
@@ -193,33 +196,34 @@ def download_step(timestamp, fxx, temp_dir):
             fxx=fxx,
             save_dir=temp_dir)
         ds_list = H.xarray(search=SEARCH)
-
-        ds_types_ok = np.asarray([isinstance(ds, xr.Dataset) for ds in ds_list])
-        if np.all(ds_types_ok):
+        ds_types_ok = np.all(np.asarray([isinstance(ds, xr.Dataset) for ds in ds_list]))
+        if ds_types_ok:
             logging.debug(f"Herbie returned {len(ds_list)} xr.Dataset objects")
+            ds_list = [ds.expand_dims("valid_time") for ds in ds_list]
+            ds = xr.merge(ds_list, combine_attrs="drop_conflicts", compat="override")
+            ds = ds.assign_coords(time=ds.valid_time)
+            ds = ds.swap_dims({"valid_time": "time"})
+            ds = ds.drop_vars([
+                "valid_time",
+                "step",
+                "meanSea",
+                "heightAboveGround",
+                "gribfile_projection"
+            ])
+            ds = ds.rename({"longitude": "lon", "latitude": "lat"})
+
+            ds.to_netcdf(fname, engine="netcdf4")
+            task_results = (True, fname)
         else:
-            raise ValueError("Herbie returned junk data")
+            logging.warning("Herbie returned junk data")
+            task_results = (False, fname)
 
-        ds_list = [ds.expand_dims("valid_time") for ds in ds_list]
-        ds = xr.merge(ds_list, combine_attrs="drop_conflicts", compat="override")
-        ds = ds.assign_coords(time=ds.valid_time)
-        ds = ds.swap_dims({"valid_time": "time"})
-        ds = ds.drop_vars([
-            "valid_time",
-            "step",
-            "meanSea",
-            "heightAboveGround",
-            "gribfile_projection"
-        ])
-        ds = ds.rename({"longitude": "lon", "latitude": "lat"})
-        ds.to_netcdf(fname)
-
-        return fname
+        return task_results
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=UserWarning)
-        fname = retry(dl_task)
-        return fname
+        status, fname = retry(dl_task)
+        return status, fname
 
 
 def download_cycle(cycle, fname, extent=None, fxx_list=None, max_worker=4):
@@ -249,35 +253,34 @@ def download_cycle(cycle, fname, extent=None, fxx_list=None, max_worker=4):
         fxx_step_info["temp_dir"].append(temp_dir)
 
     with ThreadPoolExecutor(max_workers=max_worker) as executor:
-        tick = pd.to_datetime("now")
         logging.info(f"Starting downloading steps with {max_worker} thread")
-        fns = executor.map(
+        download_status = executor.map(
             download_step,
             fxx_step_info["timestamp"],
             fxx_step_info["fxx"],
             fxx_step_info["temp_dir"]
         )
-        fns = list(fns)
-        tock = pd.to_datetime("now")
-        logging.info(f"Download completed for {len(fns)} files in {tock-tick}")
+        download_status = list(download_status)
 
-    ds = xr.open_mfdataset(fns)
-
-    if extent is not None:
-        w, e, s, n = extent
-        ds = ds.sel(
-            lon=ds.lon.where(
-                (ds.lon >= w) & (ds.lon <= e),
-                drop=True
-            ),
-            lat=ds.lat.where(
-                (ds.lat >= s) & (ds.lat <= n),
-                drop=True
+    status = np.all([s[0] for s in download_status])
+    if status:
+        logging.info(f"Download completed for {cycle}")
+        fns = [s[1] for s in download_status]
+        ds = xr.open_mfdataset(fns)
+        if extent is not None:
+            w, e, s, n = extent
+            ds = ds.sel(
+                lon=ds.lon.where(
+                    (ds.lon >= w) & (ds.lon <= e),
+                    drop=True
+                ),
+                lat=ds.lat.where(
+                    (ds.lat >= s) & (ds.lat <= n),
+                    drop=True
+                )
             )
-        )
-
-    ds.to_netcdf(fname)
-    shutil.rmtree(temp_dir)
+        ds.to_netcdf(fname)
+        shutil.rmtree(temp_dir)
 
 
 def retry(
@@ -294,14 +297,13 @@ def retry(
         exceptions (Exception, optional): Which exceptions to consider. Defaults to (Exception,).
     """
     for attempt in range(1, retries + 1):
+        if attempt > retries:
+            raise Exception("All retries failed")
         try:
             return func()
         except exceptions as e:
             logging.info(f"Attempt {attempt}/{retries} failed with {e}")
-            if attempt == retries:
-                raise Exception("All retries failed")
             time.sleep(delay)
-            continue
 
 
 if __name__ == "__main__":
@@ -309,9 +311,9 @@ if __name__ == "__main__":
 
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
+        format='[%(asctime)s | %(levelname)-8s] %(message)s',
         stream=sys.stdout)
 
-    gfs = GFS_0p25_1hr()
+    gfs = GFS_0p25_1hr(data_dir="./gfs", data_prefix='gfs_', search_length="1D")
     if gfs.check():
         gfs.download(extent=[75, 102, 5, 30])

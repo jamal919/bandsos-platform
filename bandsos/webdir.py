@@ -37,7 +37,7 @@ class GithubDirectory:
             raise Exception('No git installation if found. Check your PATH.')
 
         # Check if the folder exists online already
-        self.ghapi = GhApi(owner=self.username, repo=self.dirname, token=self.access_token)
+        self.ghapi = GhApi(owner=self.username, repo=self.dirname, token=self.access_token, sync=True)
         try:
             repo = self.ghapi.repos.get()
             logging.info(f'Found {self.username}/{self.dirname} online!')

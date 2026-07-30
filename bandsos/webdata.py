@@ -14,7 +14,7 @@ import xarray as xr
 from herbie import HerbieLatest, Herbie
 
 CYCLE_FORMAT = "%Y%m%d%H"
-PRIORITY_SOURCE = ["aws", "google", "nomads"]
+PRIORITY_SOURCE = ["aws"]
 SEARCH_STRINGS = {
     "full": "(:UGRD:10 m above ground|:VGRD:10 m above ground|:PRMSL:mean sea level|:TMP:surface|:SPFH:2 m above ground)",
     "minimal": "(:UGRD:10 m above ground|:VGRD:10 m above ground|:PRMSL:mean sea level)"

@@ -44,11 +44,11 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 
 # Conda environment
 RUN conda install -y -n base \
-    python=3.13 \
+    python==3.13 \
     numpy pandas netcdf4 xarray dask \
     gdal cartopy rasterio rioxarray \
     utide cmocean  f90nml \
-    ghapi=1.0.5 \
+    ghapi==1.1.0 \
     f90nml herbie-data \
     && conda clean -afy
 

@@ -183,7 +183,7 @@ def download_step(timestamp, fxx, temp_dir):
     fname = temp_dir / f"{cycle}_f{fxx:03d}.nc"
     task_results = (False, fname)
     if fname.exists():
-        logging.info(f"File already found - {fname}.")
+        logging.info(f"File already found at {fname}.")
         task_results = (True, fname)
         return task_results
 
@@ -213,6 +213,7 @@ def download_step(timestamp, fxx, temp_dir):
             ds = ds.rename({"longitude": "lon", "latitude": "lat"})
 
             ds.to_netcdf(fname, engine="netcdf4")
+            logging.info(f"File saved to {fname}")
             task_results = (True, fname)
         else:
             logging.warning("Herbie returned junk data")
@@ -222,8 +223,8 @@ def download_step(timestamp, fxx, temp_dir):
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=UserWarning)
-        status, fname = retry(dl_task)
-        return status, fname
+        task_results = dl_task()
+        return task_results
 
 
 def download_cycle(cycle, fname, extent=None, fxx_list=None, max_worker=4):
@@ -282,28 +283,6 @@ def download_cycle(cycle, fname, extent=None, fxx_list=None, max_worker=4):
         ds.to_netcdf(fname)
         shutil.rmtree(temp_dir)
 
-
-def retry(
-        func: callable,
-        retries: int = 5,
-        delay: int = 1,
-        exceptions: Exception = (Exception,)):
-    """Retry helper function.
-
-    Args:
-        func (callable): A callable function
-        retries (int, optional): Number of retries. Defaults to 3.
-        delay (int, optional): Delay before next try. Defaults to 1.
-        exceptions (Exception, optional): Which exceptions to consider. Defaults to (Exception,).
-    """
-    for attempt in range(1, retries + 1):
-        if attempt > retries:
-            raise Exception("All retries failed")
-        try:
-            return func()
-        except exceptions as e:
-            logging.info(f"Attempt {attempt}/{retries} failed with {e}")
-            time.sleep(delay)
 
 
 if __name__ == "__main__":
